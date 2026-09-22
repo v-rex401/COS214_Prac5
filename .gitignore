@@ -1,0 +1,4 @@
+*.vpp.lck
+*.vpp_bak_*
+~$*
+EOF
