@@ -1,4 +1,4 @@
-#include "Deescelate.h"
+#include "Deescalate.h"
 
 void Deescalate::Deescalate(SecurityGuards* s) {
 	// TODO - implement Deescelate::Deescalate
