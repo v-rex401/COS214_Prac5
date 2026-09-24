@@ -9,9 +9,8 @@ public:
 
 	virtual void undo() = 0;
 
-	void ~Protocol();
 
-	void ~Protocol();
+	virtual ~Protocol();
 };
 
 #endif

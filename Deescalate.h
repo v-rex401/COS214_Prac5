@@ -1,5 +1,5 @@
-#ifndef DEESCELATE_H
-#define DEESCELATE_H
+#ifndef DEESCALATE_H
+#define DEESCALATE_H
 
 class Deescalate : Protocol {
 
