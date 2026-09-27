@@ -24,3 +24,14 @@ void notify(FirstResponder *r, const std::string &event)
 {
 	r->receive(event);
 }
+
+CommunicationHub::~CommunicationHub()
+{
+	for (FirstResponder *ptr : responders)
+	{
+		if (ptr != nullptr)
+		{
+			delete ptr;
+		}
+	}
+}
