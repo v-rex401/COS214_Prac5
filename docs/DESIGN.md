@@ -1,552 +1,614 @@
-# CampusGuard 2026 — Design Rationale & Pattern Documentation
+# CampusGuard 2026   Design Document
 
-## System Overview
-
-CampusGuard is a campus incident-response coordination system. It manages the full lifecycle
-of a security or medical incident — from the moment a threat is reported, through escalation
-and external service dispatch, to resolution and rollback. The system integrates on-campus
-first responders (SecurityGuards, FirstAidTeam, FacilityStaff, AccessControlTeam) with
-external emergency services (Ambulance, Police, FireFighter) through a unified command and
-communication architecture.
-
-The design uses six GoF patterns: Command, Mediator, Adapter, Facade, State, and Memento.
-Each pattern was chosen to solve a specific coupling or complexity problem in the domain.
-They do not operate independently — a single incident workflow touches all six.
+**Team Members:**
+- Lindo Skosana
+- Kayla Falconer
+- Vashti
 
 ---
 
-## Pattern 1: Command
+# SYSTEM OVERVIEW
 
-### Design Problem Solved
+CampusGuard 2026 is an automated emergency response management system designed for university campuses. It monitors campus security threats, manages incident escalation lifecycles, coordinates internal responder teams, and dispatches external emergency services. The system handles the entire incident lifecycle from initial threat detection and zone isolation to full emergency escalation, de-escalation, resolution, and rollback. It coordinates subsystem operations across six Gang of Four (GoF) design patterns: Command, Mediator, Adapter, State, Memento, and Facade.
 
-Incident-response actions need to be first-class objects. A tutor asking a guard to evacuate
-a building and a system event triggering an area lockdown are both actions — they must be
-queued, logged, and reversed without the invoker (Dispatcher) needing to know what each
-action does. Without Command, the Dispatcher would need a separate method for every possible
-action, creating tight coupling between the invoker and every receiver in the system.
+---
 
-### Why Command Over a Simpler Alternative
+# PATTERN 1: COMMAND
 
-A simpler alternative would be to have the Dispatcher call methods directly on receivers:
-`guards->clearBuilding()`, `access->lockdownZone()`. This works for one action but becomes
-unmanageable as the number of actions grows, makes undo impossible without a tangled stack
-of booleans, and couples the Dispatcher to every receiver class. Command encapsulates each
-action as an object, making undo a natural consequence of storing the object after execution.
+## PARTICIPANTS
 
-### GoF Participants in This Design
+- Command (interface) = `Protocol` 
+- Invoker = `Dispatcher` 
+- ConcreteCommands = `Evacuate`, `Deescalate`, `EmergencyEscalation`, `Resolve`, `Assist`, `GrantAccess`, `Isolate` 
+- Receivers = `SecurityGuards`, `FirstAidTeam`, `FacilityStaff`, `AccessControlTeam`, `EmergencyResponder` 
 
-| GoF Role | CampusGuard Class |
+## WHY THIS PATTERN
+
+The Command pattern decouples the entity requesting an action (`EmergencyResponseFacade` or `Dispatcher`) from the receiver entities that execute physical responses on campus (`SecurityGuards`, `FacilityStaff`, `AccessControlTeam`). By encapsulating every physical response protocol into a discrete object implementing the `Protocol` interface, CampusGuard can queue pending actions, log executed commands in sequential history order, and support rollback operations via `undo()` calls.
+
+## `Protocol`
+
+**Role:** Command interface   all concrete commands inherit from this .
+
+| Method | virtual? | Returns | Purpose |
+|---|---|---|---|
+| `execute()` | pure virtual | void | Executes the concrete command operation on receiver entities . |
+| `undo()` | pure virtual | void | Reverses the effects of the executed command on receiver entities . |
+| `~Protocol()` | virtual (not pure) | void | Ensures safe polymorphic destruction of concrete command objects . |
+
+Implementation Notes: Base abstract class for all action objects. It declares pure virtual methods so that `Dispatcher` can invoke `execute()` and `undo()` polymorphically .
+
+---
+
+## `Dispatcher`
+
+**Role:** Invoker   holds and fires commands .
+
+**Attributes:**
+
+| Name | Type | Access | Purpose |
+|---|---|---|---|
+| `commandQueue` | `std::queue<Protocol*>` | private | Stores pending commands scheduled for execution . |
+| `commandHistory` | `std::stack<Protocol*>` | private | Stores executed commands to enable sequential undo operations . |
+
+**Owns:** All `Protocol*` pointers in both containers .
+
+| Method | Purpose | Steps |
+|---|---|---|
+| `issueCommand(cmd : Protocol*)` | Executes a command immediately and logs it into history . | 1. Call `cmd->execute()` . <br> 2. Push `cmd` onto `commandHistory` . <br> 3. Log command execution output . |
+| `undoLast()` | Reverses and deletes the most recently executed command . | 1. Check if `commandHistory` is empty; if empty, handle invalid case . <br> 2. Pop top command `cmd` from `commandHistory` . <br> 3. Call `cmd->undo()` and delete `cmd` . |
+| `~Dispatcher()` | Cleans up allocated commands . | Iterates through remaining items in `commandQueue` and `commandHistory` and deletes each `Protocol*` pointer . |
+
+Invalid operation case handled here: Calling `undoLast()` when `commandHistory` is empty logs a warning message ("Warning: No commands available to undo") and returns safely without throwing an exception or segfaulting .
+
+---
+
+## `Evacuate`
+
+**Receivers:** `SecurityGuards*`, `FacilityStaff*`, `AccessControlTeam*` 
+
+**Why these receivers:** Evacuating a building requires security personnel to herd occupants, facility staff to verify open physical exits, and access control to unlock all automated perimeter gates .
+
+**Attributes:**
+
+| Name | Type | Owned? |
+|---|---|---|
+| `guards` | `SecurityGuards*` | No  |
+| `facility` | `FacilityStaff*` | No  |
+| `access` | `AccessControlTeam*` | No  |
+
+**Constructor:** `Evacuate(g : SecurityGuards*, f : FacilityStaff*, a : AccessControlTeam*)`
+
+Constructor stores receiver pointers into private attributes for later execution .
+
+**`execute()` steps:**
+1. Call `guards->clearBuilding()` .
+2. Call `facility->securePremises()` .
+3. Call `access->grantEmergencyAccess()` .
+
+**`undo()` steps:**
+1. Call `access->revokeAccess("ALL", "EVACUEE")` .
+2. Call `guards->issueWarning()` .
+
+**`~Evacuate()`:**
+Does it delete any receivers? No. Receivers are owned by `EmergencyResponseFacade` and shared across multiple commands .
+
+---
+
+## `Deescalate`
+
+**Receivers:** `SecurityGuards*` 
+
+**Why these receivers:** Standing down active security patrols directly involves security personnel .
+
+**Attributes:**
+
+| Name | Type | Owned? |
+|---|---|---|
+| `guards` | `SecurityGuards*` | No  |
+
+**Constructor:** `Deescalate(s : SecurityGuards*)` initializes `guards` .
+
+**`execute()` steps:**
+1. Call `guards->issueWarning()` with stand-down advisory .
+2. Reduce security alert status .
+
+**`undo()` steps:**
+1. Call `guards->requestBackup()` .
+
+**`~Deescalate()`:** Does not delete `guards` pointer .
+
+---
+
+## `EmergencyEscalation`
+
+**Receivers:** `SecurityGuards*`, `FacilityStaff*`, `AccessControlTeam*`, `FirstAidTeam*`, `EmergencyResponder*` (police, ambulance, fire) 
+
+**Why these receivers:** A campus-wide emergency requires active coordination across all internal response teams and external municipal emergency agencies .
+
+**Attributes:**
+
+| Name | Type | Owned? |
+|---|---|---|
+| `guards` | `SecurityGuards*` | No  |
+| `facility` | `FacilityStaff*` | No  |
+| `access` | `AccessControlTeam*` | No  |
+| `medics` | `FirstAidTeam*` | No  |
+| `police` | `EmergencyResponder*` | No  |
+| `ambulance` | `EmergencyResponder*` | No  |
+| `fire` | `EmergencyResponder*` | No  |
+
+**Constructor:** `EmergencyEscalation(s, f, a, m, p, fire, am)` initializes all seven receiver pointers .
+
+**`execute()` steps:**
+1. Call `guards->clearBuilding()` .
+2. Call `facility->securePremises()` .
+3. Call `access->grantEmergencyAccess()` .
+4. Call `medics->emergencyEscalation()` .
+5. Call `police->respond("CAMPUS", Threat::SHOOTING)` .
+6. Call `ambulance->respond("CAMPUS", Threat::MEDICAL_EMERGENCY)` .
+7. Call `fire->respond("CAMPUS", Threat::FIRE)` .
+
+**`undo()` steps:**
+1. Call `access->revokeAccess("ALL", "EMERGENCY")` .
+2. Log cancellation notification for external services .
+
+**`~EmergencyEscalation()`:** Does not delete receiver pointers .
+
+---
+
+## `Resolve`
+
+**Receivers:** `FacilityStaff*`, `AccessControlTeam*` 
+
+**Why these receivers:** Resolving an incident requires facilities to inspect infrastructure and access control to restore standard security permissions .
+
+**Attributes:**
+
+| Name | Type | Owned? |
+|---|---|---|
+| `facility` | `FacilityStaff*` | No  |
+| `access` | `AccessControlTeam*` | No  |
+
+**Constructor:** `Resolve(f : FacilityStaff*, a : AccessControlTeam*)` initializes `facility` and `access` .
+
+**`execute()` steps:**
+1. Call `facility->dispatchMaintanance()` .
+2. Call `access->unlockZone("ALL")` .
+3. Log incident resolution status .
+
+**`undo()` steps:**
+1. Call `access->lockdownZone("ALL")` .
+
+**`~Resolve()`:** Does not delete receiver pointers .
+
+---
+
+## `Assist`
+
+**Receivers:** `FirstAidTeam*`, `AccessControlTeam*` 
+
+**Why these receivers:** Assisting injured individuals requires medical staff to administer care and access control to clear physical access paths for medical vehicles .
+
+**Attributes:**
+
+| Name | Type | Owned? |
+|---|---|---|
+| `medics` | `FirstAidTeam*` | No  |
+| `access` | `AccessControlTeam*` | No  |
+
+**Constructor:** `Assist(m : FirstAidTeam*, a : AccessControlTeam*)` initializes attributes .
+
+**`execute()` steps:**
+1. Call `medics->assesInjury()` .
+2. Call `medics->treatInjury()` .
+3. Call `access->grantEmergencyAccess()` .
+
+**`undo()` steps:**
+1. Log rollback of assistance protocol .
+
+**`~Assist()`:** Does not delete receiver pointers .
+
+---
+
+## `GrantAccess`
+
+**Receivers:** `AccessControlTeam*` 
+
+**Why these receivers:** Directly manipulates access control entry permissions for specific campus sectors .
+
+**Attributes:**
+
+| Name | Type | Owned? |
+|---|---|---|
+| `access` | `AccessControlTeam*` | No  |
+| `zone` | `std::string` | Yes (value copy)  |
+| `role` | `std::string` | Yes (value copy)  |
+
+**Constructor:** `GrantAccess(a : AccessControlTeam*, zone : std::string, role : std::string)` initializes receiver, zone, and role .
+
+**`execute()` steps:**
+1. Call `access->grantEmergencyAccess()` or specific zone unlock logic .
+
+**`undo()` steps:**
+1. Call `access->revokeAccess(zone, role)` .
+
+**`~GrantAccess()`:** Does not delete `access` pointer .
+
+---
+
+## `Isolate`
+
+**Receivers:** `AccessControlTeam*` 
+
+**Why these receivers:** Isolating a security threat requires automated locking of sector access points .
+
+**Attributes:**
+
+| Name | Type | Owned? |
+|---|---|---|
+| `access` | `AccessControlTeam*` | No  |
+| `zone` | `std::string` | Yes (value copy)  |
+
+**Constructor:** `Isolate(a : AccessControlTeam*, zone : std::string)` initializes `access` and `zone` .
+
+**`execute()` steps:**
+1. Call `access->lockdownZone(zone)` .
+2. Log zone isolation status .
+
+Inside `lockdownZone()`, `AccessControlTeam` calls `changed("ZONE_LOCKED")`   this is where Command triggers the Mediator .
+
+**`undo()` steps:**
+1. Call `access->unlockZone(zone)` .
+
+**`~Isolate()`:** Does not delete `access` pointer .
+
+---
+
+# PATTERN 2: MEDIATOR
+
+## PARTICIPANTS
+
+- Mediator (interface) = `CommunicationTeam` 
+- ConcreteMediator = `CommunicationHub` 
+- Colleague (abstract) = `FirstResponder` 
+- ConcreteColleagues = `SecurityGuards`, `FirstAidTeam`, `FacilityStaff`, `AccessControlTeam` 
+
+## WHY THIS PATTERN
+
+The Mediator pattern eliminates direct, many-to-many dependencies between internal responder teams . Without a mediator, `SecurityGuards` would require direct pointers to `FacilityStaff`, `AccessControlTeam`, and `FirstAidTeam` to alert them of changes, creating tight coupling and potential circular dependencies . `CommunicationHub` centralizes all event notifications so responder classes remain decoupled .
+
+## HOW IT WORKS
+
+When an internal responder experiences a state change or executes an action (e.g., `AccessControlTeam` locking a zone), it calls `this->changed("ZONE_LOCKED")` . The base class `FirstResponder::changed()` forwards this event string to `hub->notify(this, "ZONE_LOCKED")` . The `CommunicationHub` iterates through its list of registered responders, skips the sender instance, and invokes `receive("ZONE_LOCKED")` on every other responder so they can react independently .
+
+---
+
+## `CommunicationTeam`
+
+**Role:** Abstract mediator interface .
+
+| Method | virtual? | Returns | Purpose |
+|---|---|---|---|
+| `notify(r : FirstResponder*, event : const std::string&)` | pure virtual | void | Defines notification protocol for colleague state changes . |
+| `~CommunicationTeam()` | pure virtual | void | Ensures safe polymorphic cleanup of mediator objects . |
+
+Pure virtual destructor needs an out-of-line implementation body in `CommunicationTeam.cpp`: `CommunicationTeam::~CommunicationTeam() {}` .
+
+---
+
+## `CommunicationHub`
+
+**Role:** ConcreteMediator   coordinates all colleague communication .
+
+**Attributes:**
+
+| Name | Type | Owned? | Purpose |
+|---|---|---|---|
+| `responders` | `std::vector<FirstResponder*>` | No | Holds non-owning references to registered colleagues . |
+
+| Method | virtual? | Purpose | Steps |
+|---|---|---|---|
+| `notify(r : FirstResponder*, event : const std::string)` | override | Broadcasts event to all colleagues except sender . | 1. Iterate through `responders` vector . <br> 2. Skip element if `elem == r` . <br> 3. Call `elem->receive(event)` . |
+| `registerResponder(r : FirstResponder*)` | no | Adds colleague to broadcast list . | Appends `r` to `responders` vector . |
+| `removeResponder(r : FirstResponder*)` | no | Removes colleague from list . | Erases `r` from `responders` vector . |
+| `~CommunicationHub()` | override | Destructor . | Clears `responders` vector without deleting pointers . |
+
+`~CommunicationHub()` does NOT delete anything in `responders` because responder objects are owned by `EmergencyResponseFacade` .
+
+---
+
+## `FirstResponder`
+
+**Role:** Abstract colleague base class .
+
+**Attributes:**
+
+| Name | Type | Access | Owned? | Purpose |
+|---|---|---|---|---|
+| `hub` | `CommunicationTeam*` | protected | No | Pointer to mediator hub . |
+
+| Method | virtual? | Purpose |
+|---|---|---|
+| `FirstResponder(hub : CommunicationTeam*)` |   | Constructs colleague with mediator pointer . |
+| `receive(event : const std::string&)` | pure virtual | Handles incoming broadcast events from other colleagues . |
+| `changed(event : const std::string&)` | NOT virtual | Forwards internal events to the mediator hub . |
+| `~FirstResponder()` | pure virtual | Pure virtual destructor requiring implementation in `.cpp` . |
+
+`changed()` is NOT virtual because forwarding logic to `hub->notify(this, event)` is invariant across all colleague types . `receive()` is pure virtual because each concrete colleague reacts differently to broadcast events .
+
+---
+
+## `SecurityGuards`
+
+**Constructor:** `SecurityGuards(hub : CommunicationTeam*) : FirstResponder(hub) {}` 
+
+| Method | Purpose |
 |---|---|
-| Command (interface) | `Protocol` |
-| Invoker | `Dispatcher` |
-| ConcreteCommand | `Evacuate`, `Deescalate`, `EmergencyEscalation`, `Resolve`, `Assist`, `GrantAccess`, `Isolate` |
-| Receiver | `SecurityGuards`, `FirstAidTeam`, `FacilityStaff`, `AccessControlTeam`, `EmergencyResponder` |
+| `receive(event : const std::string&)` | Parses event string and triggers security responses . |
+| `clearBuilding()` | Orders building evacuation . |
+| `issueWarning()` | Dispatches warning broadcasts . |
+| `requestBackup()` | Requests additional security units . |
+| `~SecurityGuards()` | Destructor . |
 
-### How Each Concrete Command Works
+**`receive()`   event handling:**
 
-**`Evacuate`**
-Receivers: `SecurityGuards`, `FacilityStaff`, `AccessControlTeam`
-Justification: Evacuating a building requires guards to physically clear the space, facility
-staff to secure entry points, and access control to open emergency exits. All three must act
-in coordination — this command orchestrates all three in `execute()`.
-
-**`Deescalate`**
-Receivers: `SecurityGuards`
-Justification: De-escalation is a guard-only action — positioning personnel and issuing
-verbal warnings to contain a minor disturbance before it grows. Only SecurityGuards are
-qualified and dispatched for this.
-
-**`EmergencyEscalation`**
-Receivers: `SecurityGuards`, `FacilityStaff`, `AccessControlTeam`, `FirstAidTeam`,
-`EmergencyResponder` (police, ambulance, fire — via adapters)
-Justification: This is the most critical command — it activates every internal responder
-AND contacts all three external services. This is where Command and Adapter intersect:
-`execute()` calls `police->respond()`, `ambulance->respond()`, `fire->respond()` through
-the `EmergencyResponder` target interface. The command does not know it is talking to adapters.
-
-**`Resolve`**
-Receivers: `FacilityStaff`, `AccessControlTeam`
-Justification: Resolving an incident means restoring normal operations — unlocking zones,
-dispatching maintenance, and broadcasting the all-clear. Guards are not needed; this is
-an administrative and facilities action.
-
-**`Assist`**
-Receivers: `FirstAidTeam`, `AccessControlTeam`
-Justification: Medical assistance requires medics to be deployed AND access control to open
-medical zones. If medics assess the injury as critical, they call `escalateSituation()`
-internally, which signals the mediator — the Facade then issues an `EmergencyEscalation`.
-
-**`GrantAccess`**
-Receivers: `AccessControlTeam`
-Justification: Granting access to a specific zone for a specific role is a targeted,
-reversible action. `undo()` calls `revokeAccess()` with the same zone and role.
-This command is used when first responders need access to areas normally restricted.
-
-**`Isolate`**
-Receivers: `AccessControlTeam`
-Justification: Isolating a dangerous area from civilians is the inverse of GrantAccess —
-it locks a zone and broadcasts the restriction. Inside `lockdownZone()`, the
-AccessControlTeam calls `changed("ZONE_LOCKED")`, triggering the mediator to notify
-FacilityStaff to secure adjacent entry points.
-
-### Key Design Decision: Commands Don't Own Receivers
-
-Every concrete command stores raw pointers to its receivers but does NOT delete them in
-its destructor. The Facade owns all receiver objects. Commands are created, executed, and
-either undone or destroyed by the Dispatcher — receivers outlive all commands.
-
-### Key Design Decision: `Protocol::undo()` is Pure Virtual
-
-Every command must be reversible. Making `undo()` pure virtual enforces this at compile
-time. A command that genuinely cannot be undone (e.g., a dispatched ambulance) still
-implements `undo()` — it prints a log message explaining why the reversal is partial.
-Silent no-ops are not permitted.
-
----
-
-## Pattern 2: Mediator
-
-### Design Problem Solved
-
-The four on-campus first responders need to react to each other's actions without knowing
-about each other. Without a mediator, `SecurityGuards::clearBuilding()` would need to
-directly call `FacilityStaff::securePremises()` and `AccessControlTeam::lockdownZone()`,
-creating a many-to-many dependency web. Adding a fifth responder type would require
-modifying every existing class. The mediator centralises all inter-colleague communication.
-
-### Why Mediator Over Direct Coupling
-
-Direct coupling between colleagues means every class depends on every other. Four responders
-produce up to twelve directed dependencies. With a mediator there are four — each colleague
-knows only the hub. This also means the hub's `notify()` method is the single place where
-"when X happens, Y and Z should react" logic lives, making it easy to audit and modify.
-
-### GoF Participants in This Design
-
-| GoF Role | CampusGuard Class |
+| Event string | Reaction |
 |---|---|
-| Mediator (interface) | `CommunicationTeam` |
-| ConcreteMediator | `CommunicationHub` |
-| Colleague (abstract) | `FirstResponder` |
-| ConcreteColleague | `SecurityGuards`, `FirstAidTeam`, `FacilityStaff`, `AccessControlTeam` |
+| `"INCIDENT_REPORTED"` | Logs security awareness and increases patrol vigilance . |
+| `"EMERGENCY_DECLARED"` | Triggers immediate perimeter security lockdown . |
+| `"INCIDENT_RESOLVED"` | Stands down active tactical teams . |
+| `"ZONE_LOCKED"` | Deploys guards to monitor locked zone boundaries . |
 
-### How the Mediator Coordinates
+**`clearBuilding()`:** Prints building evacuation message and calls `changed("BUILDING_CLEARED")` .
 
-When a colleague's state changes in a domain-significant way, it calls:
-```
-this->changed("EVENT_STRING");
-```
-`changed()` is defined on `FirstResponder` and is NOT virtual — it always does the same
-thing: forward to `hub->notify(this, event)`. The hub iterates all registered responders,
-skips the sender, and calls `receive(event)` on everyone else. Each concrete colleague
-implements `receive()` differently — this is the pure virtual method that varies.
-
-**Example flow — `Isolate` command executes:**
-1. `Isolate::execute()` calls `access->lockdownZone("Engineering Block A")`
-2. Inside `lockdownZone()`, after locking: `changed("ZONE_LOCKED")`
-3. `FirstResponder::changed()` calls `hub->notify(access, "ZONE_LOCKED")`
-4. `CommunicationHub::notify()` skips `access` (the sender), calls `receive("ZONE_LOCKED")`
-   on `guards`, `medics`, and `facility`
-5. `FacilityStaff::receive("ZONE_LOCKED")` → `securePremises()`
-6. The other two acknowledge and log
-
-This is a real domain collaboration triggered by one command — not a demonstration pattern.
-
-### Key Design Decision: `changed()` is Not Virtual
-
-`changed()` must always forward to the hub without variation — making it virtual would
-allow a subclass to override it and break the mediator contract. Only `receive()` is virtual
-because reacting to notifications is what differs between responder types.
-
-### Key Design Decision: Hub Does Not Own Responders
-
-`CommunicationHub` stores `std::vector<FirstResponder*>` but does not delete them. The Facade
-owns all responders. The hub's destructor is trivial. This prevents double-delete and makes
-ownership explicit and traceable.
+**`requestBackup()`:** Calls `changed("BACKUP_NEEDED")` .
 
 ---
 
-## Pattern 3: Adapter
+## `FirstAidTeam`
 
-### Design Problem Solved
+**Constructor:** `FirstAidTeam(hub : CommunicationTeam*) : FirstResponder(hub) {}` 
 
-CampusGuard needs to contact three external emergency services — an ambulance dispatch
-system, a police communications system, and a fire department alert system. Each has its
-own incompatible API designed independently of CampusGuard. The system cannot modify these
-external interfaces. Without adapters, `EmergencyEscalation` would need to know about GPS
-coordinates, police incident codes, and fire department building numbers — tightly coupling
-a core domain class to three external implementation details.
-
-### Why Adapter Over Direct Integration
-
-If `EmergencyEscalation` called `ambulance->dispatch(lat, lon, caseType)` directly, the
-command would need to know how to convert a campus location string to GPS coordinates. It
-would also become impossible to swap the ambulance service for a different provider without
-modifying `EmergencyEscalation`. The adapter isolates the translation logic — the command
-only calls `respond(location, threat)` on an `EmergencyResponder*`.
-
-### GoF Participants in This Design
-
-| GoF Role | CampusGuard Class |
+| Method | Purpose |
 |---|---|
-| Target (interface) | `EmergencyResponder` |
-| Adapter | `AmbulanceAdapter`, `PoliceAdapter`, `FireFighterAdapter` |
-| Adaptee | `Ambulance`, `Police`, `FireFighter` |
-| Client | `EmergencyEscalation` (command), `EmergencyResponseFacade` |
+| `receive(event : const std::string&)` | Parses event string and triggers medical responses . |
+| `treatInjury()` | Administers medical treatment . |
+| `assesInjury()` | Evaluates casualty severity . |
+| `emergencyEscalation()` | Prepares medical triage stations . |
+| `~FirstAidTeam()` | Destructor . |
 
-### The Interface Mismatch — Why Each Adapter is Justified
+**`receive()`   event handling:**
 
-**`AmbulanceAdapter`**
-- Target expects: `respond(const std::string& location, Threat threat)`
-- Adaptee provides: `dispatch(double lat, double lon, int caseType)`
-- Translation: Location string → GPS coordinates (campus building lookup table).
-  `Threat` enum → integer case type (1=trauma, 2=cardiac, 3=general).
-
-**`PoliceAdapter`**
-- Target expects: `respond(const std::string& location, Threat threat)`
-- Adaptee provides: `requestBackup(const std::string& incidentCode, int priority)`
-- Translation: `Threat` enum → standard police 10-code string
-  (e.g., `SHOOTING` → `"10-71"`, `FIRE` → `"10-70"`).
-  `Threat` severity → integer priority (1=highest, 3=lowest).
-
-**`FireFighterAdapter`**
-- Target expects: `respond(const std::string& location, Threat threat)`
-- Adaptee provides: `alertStation(const std::string& location, const std::string& buildingName, int buildingNumber)`
-- Translation: Location string → building name string + integer building number
-  (campus building registry lookup).
-
-### Key Design Decision: Adapters Own Their Adaptees
-
-Each adapter takes a raw `Adaptee*` in its constructor and deletes it in its destructor.
-The Facade creates adapters as: `new AmbulanceAdapter(new Ambulance())`. The `Ambulance`
-is created solely to be wrapped — it has no independent existence in the system. The adapter
-is the single owner. When the Facade deletes the adapter, the adaptee is also deleted.
-
-### Key Design Decision: `EmergencyResponder` Methods are Pure Virtual
-
-`respond()` and `getStatus()` are pure virtual on `EmergencyResponder`. This forces every
-adapter to provide a real translation implementation — a forgotten `respond()` override
-would be a compile error, not a silent no-op.
-
----
-
-## Pattern 4: Facade
-
-### Design Problem Solved
-
-Without a Facade, `main.cpp` would need to construct and coordinate a Dispatcher,
-IncidentControl, CommunicationHub, four colleagues, three adapters with their adaptees, and
-an IncidentHistory — in the correct order, with correct ownership. A single incident report
-would require the client to call `controller->addThreat()`, `hub->notify()`,
-`dispatcher->issueCommand(new Isolate(...))` — knowing about six subsystems to perform one
-logical operation. The Facade reduces this to `system.reportIncident(location, threat)`.
-
-### Why Facade Over Exposing Subsystems
-
-The alternative is to let `main.cpp` coordinate everything directly. This means `main.cpp`
-becomes a god function that knows the internal structure of the entire system. Any change
-to the subsystem interaction sequence requires modifying `main.cpp`. The Facade contains
-this coordination knowledge in one place — subsystems remain independently usable (you can
-still call `dispatcher->issueCommand()` directly if needed), but the common workflows are
-one-liners.
-
-### GoF Participants in This Design
-
-| GoF Role | CampusGuard Class |
+| Event string | Reaction |
 |---|---|
-| Facade | `EmergencyResponseFacade` |
-| Subsystems | `Dispatcher`, `IncidentControl`, `CommunicationHub`, `SecurityGuards`, `FirstAidTeam`, `FacilityStaff`, `AccessControlTeam`, `AmbulanceAdapter`, `PoliceAdapter`, `FireFighterAdapter`, `IncidentHistory` |
+| `"INCIDENT_REPORTED"` | Prepares medical equipment and triage kits . |
+| `"BACKUP_NEEDED"` | Dispatches medical personnel to requested sector . |
+| `"EMERGENCY_DECLARED"` | Prepares field trauma unit for incoming casualties . |
 
-### Facade Operations — Subsystems Coordinated per Method
-
-**`reportIncident(location, threat)`** — 4 subsystems:
-1. `IncidentControl::addThreat()` — registers threat, triggers state escalation
-2. `IncidentHistory::push(controller->createMemento())` — snapshots state before response
-3. `CommunicationHub::notify(nullptr, "INCIDENT_REPORTED")` — mediator broadcasts to all colleagues
-4. `Dispatcher::issueCommand(new Isolate(...))` — issues containment command
-
-**`escalateToEmergency()`** — 4 subsystems:
-1. `IncidentControl::escalate()` — forces state upward
-2. `IncidentHistory::push(controller->createMemento())` — snapshots pre-escalation state
-3. `Dispatcher::issueCommand(new EmergencyEscalation(...))` — triggers all responders + all adapters
-4. `CommunicationHub::notify(nullptr, "EMERGENCY_DECLARED")` — broadcast
-
-**`resolveIncident()`** — 4 subsystems:
-1. `Dispatcher::issueCommand(new Resolve(...))` — restore access, dispatch maintenance
-2. `IncidentControl::clearThreats()` — clears all threats, triggers Resolved state
-3. `IncidentHistory::push(controller->createMemento())` — snapshots resolved state
-4. `CommunicationHub::notify(nullptr, "INCIDENT_RESOLVED")` — broadcast
-
-**`rollbackLastAction()`** — 3 subsystems:
-1. `IncidentHistory::pop()` — retrieves last snapshot
-2. `IncidentControl::restore(memento)` — restores state and threat map
-3. `Dispatcher::undoLast()` — undoes last command
-
-### Key Design Decision: Facade is the Composition Root
-
-The Facade constructs every object in the system in its constructor and destroys every
-object in its destructor. `main.cpp` only creates and destroys a `EmergencyResponseFacade`.
-This makes the entire object graph's lifetime deterministic — one Facade created, one
-Facade destroyed, all memory accounted for. Valgrind will show zero leaks.
+`emergencyEscalation()` does NOT call external municipal ambulances directly. Instead, it prepares internal field stations and calls `changed("MEDICAL_ESCALATED")` so the system facade can handle external adapters .
 
 ---
 
-## Pattern 5: State
+## `FacilityStaff`
 
-### Design Problem Solved
+**Constructor:** `FacilityStaff(hub : CommunicationTeam*) : FirstResponder(hub) {}` 
 
-An incident passes through distinct severity phases — Moderate, Urgent, Emergency, Resolved.
-The behaviour of `IncidentControl` differs fundamentally in each phase: what commands should
-be issued, what constitutes a valid operation, how to respond to a new threat. Without State,
-`IncidentControl` would use a cascade of `if/else` or `switch` statements checking an enum,
-spreading state-specific logic throughout the class. Adding a new state (e.g., `Contained`)
-would require modifying every existing branch.
+| Method | Purpose |
+|---|---|
+| `receive(event : const std::string&)` | Parses event string and triggers facility operations . |
+| `dispatchMaintanance()` | Sends maintenance crews to repair infrastructure . |
+| `securePremises()` | Secures building utility lines and emergency doors . |
+| `~FacilityStaff()` | Destructor . |
 
-### Why State Over an Enum + Switch
+Spelling Note: Method is named `dispatchMaintanance` to match UML specifications .
 
-An enum approach means `IncidentControl::escalate()` looks like:
+**`receive()`   event handling:**
+
+| Event string | Reaction |
+|---|---|
+| `"BUILDING_CLEARED"` | Dispatches facility staff to lock down utility infrastructure . |
+| `"INCIDENT_RESOLVED"` | Calls `dispatchMaintanance()` to inspect structural damage . |
+| `"ZONE_LOCKED"` | Secures secondary utility access points in locked sector . |
+
+---
+
+## `AccessControlTeam`
+
+**Constructor:** `AccessControlTeam(hub : CommunicationTeam*) : FirstResponder(hub) {}` 
+
+| Method | Purpose |
+|---|---|
+| `receive(event : const std::string&)` | Parses event string and triggers access door locks . |
+| `unlockZone(zone : const std::string&)` | Unlocks electronic access doors in specified zone . |
+| `lockdownZone(zone : const std::string&)` | Locks all electronic doors in specified zone . |
+| `grantEmergencyAccess()` | Overrides electronic access doors campus-wide . |
+| `revokeAccess(zone, role)` | Restores restrictive access permissions . |
+| `broadcastRestriction(zone)` | Dispatches entry warning alerts . |
+| `~AccessControlTeam()` | Destructor . |
+
+**`receive()`   event handling:**
+
+| Event string | Reaction |
+|---|---|
+| `"EMERGENCY_DECLARED"` | Unlocks all evacuation turnstiles and emergency exits . |
+| `"INCIDENT_RESOLVED"` | Restores normal card-access security rules . |
+
+`lockdownZone()` locks electronic doors and calls `changed("ZONE_LOCKED")` to trigger mediator notifications .
+
+`broadcastRestriction()` calls `changed("RESTRICTION_ENFORCED")` .
+
+---
+
+# PATTERN 3: ADAPTER
+
+## PARTICIPANTS
+
+- Target (interface) = `EmergencyResponder` 
+- Adapters = `AmbulanceAdapter`, `PoliceAdapter`, `FireFighterAdapter` 
+- Adaptees = `Ambulance`, `Police`, `FireFighter` 
+- Client = `EmergencyEscalation` command 
+
+## WHY THIS PATTERN
+
+The Adapter pattern converts the incompatible legacy interfaces of external emergency response services (`Ambulance`, `Police`, `FireFighter`) into the unified target interface (`EmergencyResponder`) expected by CampusGuard . This allows CampusGuard to dispatch external services uniformly using `respond(location, threat)` without modifying legacy vendor code .
+
+## THE MISMATCH
+
+| Service | CampusGuard calls | Adaptee provides | What the adapter must translate |
+|---|---|---|---|
+| Ambulance | `respond(location, threat)` | `dispatch(caseType, lat, lon)` | Translates text location to `lat`/`lon` coordinates and maps `Threat` enum to integer `caseType` . |
+| Police | `respond(location, threat)` | `dispatch(location, severity, incidentCode)` | Translates `Threat` enum to numeric severity integer and police radio code string . |
+| FireFighter | `respond(location, threat)` | `alertStation(location, buildingNumber)` | Translates text location to integer `buildingNumber` and retrieves ETA metric . |
+
+---
+
+## `EmergencyResponder`
+
+**Role:** Target interface   unified interface expected by CampusGuard .
+
+| Method | virtual? | Returns | Purpose |
+|---|---|---|---|
+| `respond(location : const std::string&, threat : Threat)` | pure virtual | void | Dispatches responder to target location for specified threat . |
+| `getStatus()` | pure virtual | void | Queries operational deployment status of the responder . |
+| `~EmergencyResponder()` | pure virtual | void | Pure virtual destructor requiring body in `.cpp` . |
+
+---
+
+## `Ambulance`
+
+**Role:** Adaptee   external service with incompatible interface .
+
+| Method | Returns | Implementation notes |
+|---|---|---|
+| `dispatch(caseType : int, lat : double, lon : double)` | void | Accepts integer medical case codes and GPS double coordinates . |
+| `getUnitAvailability()` | boolean | Returns availability status (simulated boolean) . |
+
+Latitude and longitude are determined by internal lookup logic inside `AmbulanceAdapter`, not inside `Ambulance` . Availability defaults to `true` for demonstration .
+
+---
+
+## `AmbulanceAdapter`
+
+**Attributes:**
+
+| Name | Type | Owned? |
+|---|---|---|
+| `adaptee` | `Ambulance*` | YES   deleted in adapter destructor . |
+
+**Constructor:** `AmbulanceAdapter(a : Ambulance*) : adaptee(a) {}` 
+
+**`~AmbulanceAdapter()`:** Calls `delete adaptee;` because the adapter owns its wrapped adaptee instance .
+
+**`respond(location : const std::string&, threat : Threat)`   translation steps:**
+
+Step 1   Convert location string → `lat`/`lon`:
 ```cpp
-if (currentState == MODERATE) { ... }
-else if (currentState == URGENT) { ... }
+double lat = -25.7545, lon = 28.2314; // Default campus coordinates
+if (location.find("Engineering") != std::string::npos) { lat = -25.7550; lon = 28.2320; }
+else if (location.find("Library") != std::string::npos) { lat = -25.7538; lon = 28.2295; }
 ```
-This is duplicated in `escalate()`, `deescalate()`, `addThreat()`, and every method that
-depends on current state. The State pattern moves each state's behaviour into its own class.
-`IncidentControl` calls `currentState->escalate(this)` — it never conditionally branches
-on state. Adding `Contained` means adding one class, not modifying twelve methods.
+ 
 
-### GoF Participants in This Design
+Step 2   Convert `Threat` enum → `caseType` integer:
+```cpp
+int caseType = 1; // Default medical
+if (threat == Threat::SHOOTING) caseType = 5;
+else if (threat == Threat::INJURY) caseType = 2;
+else if (threat == Threat::MEDICAL_EMERGENCY) caseType = 1;
+```
+ 
 
-| GoF Role | CampusGuard Class |
-|---|---|
-| Context | `IncidentControl` |
-| State (abstract) | `IncidentState` |
-| ConcreteState | `Moderate`, `Urgent`, `Emergency`, `Resolved` |
+Step 3   Call adaptee:
+```cpp
+adaptee->dispatch(caseType, lat, lon);
+``` 
 
-### State Transition Logic
+**`getStatus()`:** Checks `adaptee->getUnitAvailability()` and logs unit deployment status .
 
-States drive their own transitions by calling `ctx->setState(new NextState())`. The Context
-never decides what comes next — the current state does. This is the critical design insight:
+---
 
-| Current State | `escalate()` | `deescalate()` |
+## `Police`
+
+**Role:** Adaptee   external service with incompatible interface .
+
+| Method | Returns | Implementation notes |
 |---|---|---|
-| `Moderate` | → `Urgent` | → `Resolved` (if no threats) |
-| `Urgent` | → `Emergency` | → `Moderate` |
-| `Emergency` | **INVALID** — logs warning, no transition | → `Urgent` |
-| `Resolved` | → `Moderate` (incident re-opens) | **INVALID** — logs warning |
-
-`Emergency::escalate()` and `Resolved::deescalate()` are the required invalid-operation
-cases handled sensibly — they print a descriptive warning and do nothing, rather than
-crashing or silently corrupting state.
-
-### Key Design Decision: `setState()` Deletes the Old State
-
-When a transition occurs, `IncidentControl::setState(new NextState())` deletes the previous
-`IncidentState*` before replacing it. This means state objects have a lifetime exactly equal
-to the period they are active. No state lingers. No double-delete is possible because
-`currentState` is always replaced atomically.
-
-### Key Design Decision: `IncidentControl` Also Serves as Originator (Memento)
-
-`IncidentControl` is both the State Context and the Memento Originator. This is intentional
-and correct — both roles concern the same data (current state, threat count, active threats).
-Splitting them into two classes would require either duplicating the data or creating
-unnecessary coupling between two classes that always need the same information.
+| `dispatch(location : const std::string, severity : int, incidentCode : std::string)` | void | Accepts text location, integer severity level, and string incident radio code . |
+| `confirmDeployment()` | void | Prints deployment confirmation text . |
 
 ---
 
-## Pattern 6: Memento
+## `PoliceAdapter`
 
-### Design Problem Solved
+**Attributes:**
 
-CampusGuard must support rollback — if an emergency escalation turns out to be a false
-alarm, the system must be able to restore the exact incident state that existed before the
-escalation, including the threat map and the severity level. Without Memento, rollback would
-require either re-running the scenario from the start, or exposing `IncidentControl`'s
-private data to an external class that stores it — violating encapsulation.
-
-### Why Memento Over Exposing State Externally
-
-The alternative is to have `IncidentHistory` store copies of `IncidentControl`'s data
-directly — but this requires `IncidentHistory` to know about the internal structure of
-`IncidentControl`. If `IncidentControl` adds a new field, `IncidentHistory` must also be
-updated. Memento keeps the snapshot opaque to the Caretaker — only the Originator knows
-how to read it back.
-
-### GoF Participants in This Design
-
-| GoF Role | CampusGuard Class |
-|---|---|
-| Originator | `IncidentControl` |
-| Memento | `IncidentMemento` |
-| Caretaker | `IncidentHistory` |
-
-### What the Memento Stores
-
-`IncidentMemento` stores three value copies — not pointers:
-- `int threatCount` — copy of the count at snapshot time
-- `std::map<std::string, Threat> activeThreats` — full copy of the threat map
-- `std::string stateLabel` — the string label of the current state ("MODERATE" etc.)
-
-**Why a string label and not `IncidentState*`:**
-If we stored `IncidentState* currentState` in the memento, we would be storing a pointer
-to the live state object. When `IncidentControl` transitions to Emergency and deletes the
-Urgent object, the memento's pointer becomes dangling. Restoring from it is undefined
-behaviour. The string label is a stable, copyable representation. `restore()` reconstructs
-the correct `IncidentState` object from the label using `new Moderate()` etc.
-
-### Ownership of Memento Pointers
-
-Since mementos are kept as pointers (as preferred):
-
-```
-createMemento() → allocates IncidentMemento* → Facade receives pointer
-Facade → history->push(ptr) → IncidentHistory takes ownership
-history->pop() → returns ptr, transfers ownership to Facade
-Facade → controller->restore(ptr) → IncidentControl reads + deletes ptr
-```
-
-Every `new IncidentMemento` has exactly one matching `delete` in `IncidentControl::restore()`.
-`IncidentHistory::~IncidentHistory()` deletes any mementos that were never popped
-(e.g., if the program ends while snapshots remain).
-
-### Key Design Decision: Caretaker Never Inspects the Memento
-
-`IncidentHistory::push()` stores the pointer. `IncidentHistory::pop()` returns it.
-`IncidentHistory` never calls any getter on `IncidentMemento`. All interpretation of memento
-contents is done exclusively in `IncidentControl::restore()`. This is the fundamental Memento
-contract — the Caretaker is opaque to the memento's contents.
-
-### Invalid Operation Case
-
-`IncidentHistory::pop()` when the stack is empty returns `nullptr` with a warning message.
-`EmergencyResponseFacade::rollbackLastAction()` checks for `nullptr` before calling `restore()`.
-`IncidentControl::restore()` also guards against `nullptr`. Two defensive layers ensure
-no crash and a clear user-visible warning.
-
----
-
-## How the Six Patterns Interact
-
-The patterns do not operate independently. A single incident workflow exercises all six:
-
-```
-main() calls: system.reportIncident("Engineering Block A", Threat::FIRE)
-│
-├─ [FACADE] EmergencyResponseFacade::reportIncident()
-│     │
-│     ├─ [STATE] IncidentControl::addThreat() → escalate()
-│     │               → Moderate::escalate() → ctx->setState(new Urgent())
-│     │
-│     ├─ [MEMENTO] history->push(controller->createMemento())
-│     │               → IncidentMemento* allocated, snapshot of Urgent state
-│     │
-│     ├─ [MEDIATOR] hub->notify(nullptr, "INCIDENT_REPORTED")
-│     │               → SecurityGuards::receive() → moves to location
-│     │               → FirstAidTeam::receive() → prepares kit
-│     │               → AccessControlTeam::receive() → prepares for lockdown
-│     │
-│     └─ [COMMAND] dispatcher->issueCommand(new Isolate(access, "Engineering Block A"))
-│                     → Isolate::execute()
-│                     → access->lockdownZone("Engineering Block A")
-│                     → [MEDIATOR] access->changed("ZONE_LOCKED")
-│                     → hub->notify(access, "ZONE_LOCKED")
-│                     → FacilityStaff::receive("ZONE_LOCKED") → securePremises()
-│
-main() calls: system.escalateToEmergency()
-│
-├─ [FACADE] EmergencyResponseFacade::escalateToEmergency()
-│     │
-│     ├─ [STATE] IncidentControl::escalate()
-│     │               → Urgent::escalate() → ctx->setState(new Emergency())
-│     │
-│     ├─ [MEMENTO] history->push(controller->createMemento())
-│     │               → snapshot of Emergency state saved
-│     │
-│     ├─ [COMMAND] dispatcher->issueCommand(new EmergencyEscalation(...))
-│     │     └─ EmergencyEscalation::execute()
-│     │           ├─ access->lockdownZone(location)     [internal receiver]
-│     │           ├─ guards->clearBuilding()            [internal receiver]
-│     │           ├─ medics->escalateSituation()        [internal receiver]
-│     │           ├─ [ADAPTER] police->respond(...)
-│     │           │     └─ PoliceAdapter::respond()
-│     │           │           → threatToIncidentCode(FIRE) → "10-70"
-│     │           │           → adaptee->requestBackup("10-70", 1)
-│     │           ├─ [ADAPTER] ambulance->respond(...)
-│     │           │     └─ AmbulanceAdapter::respond()
-│     │           │           → locationToCoords("Engineering Block A") → lat/lon
-│     │           │           → adaptee->dispatch(lat, lon, 3)
-│     │           └─ [ADAPTER] fire->respond(...)
-│     │                 └─ FireFighterAdapter::respond()
-│     │                       → extractBuildingName() → "Engineering Block"
-│     │                       → adaptee->alertStation(..., "Engineering Block", 14)
-│     │
-│     └─ [MEDIATOR] hub->notify(nullptr, "EMERGENCY_DECLARED")
-│                     → all colleagues receive and react
-│
-main() calls: system.rollbackLastAction()
-│
-└─ [FACADE] EmergencyResponseFacade::rollbackLastAction()
-      ├─ [MEMENTO] history->pop() → returns Emergency snapshot pointer
-      ├─ [STATE+MEMENTO] controller->restore(snapshot)
-      │                   → reads label "EMERGENCY" → new Emergency()
-      │                   → restores threatCount and activeThreats
-      │                   → deletes snapshot pointer
-      └─ [COMMAND] dispatcher->undoLast()
-                    → pops EmergencyEscalation from history
-                    → EmergencyEscalation::undo() → unlocks zones, stands down
-                    → delete cmd
-```
-
----
-
-## Ownership Policy Summary
-
-| Object | Owner | Lifetime |
+| Name | Type | Owned? |
 |---|---|---|
-| All `FirstResponder` subclasses | `EmergencyResponseFacade` | Entire program lifetime |
-| `CommunicationHub` | `EmergencyResponseFacade` | Entire program lifetime |
-| `Dispatcher` | `EmergencyResponseFacade` | Entire program lifetime |
-| `IncidentControl` | `EmergencyResponseFacade` | Entire program lifetime |
-| `IncidentHistory` | `EmergencyResponseFacade` | Entire program lifetime |
-| All Adapter objects | `EmergencyResponseFacade` | Entire program lifetime |
-| All Adaptee objects | Their respective Adapter | As long as adapter lives |
-| `Protocol*` commands | `Dispatcher` | Until undone or Dispatcher destroyed |
-| `IncidentState*` | `IncidentControl` | Until next transition or controller destroyed |
-| `IncidentMemento*` | `IncidentHistory` while stored, then `IncidentControl::restore()` | Until `restore()` is called |
+| `adaptee` | `Police*` | YES   deleted in destructor . |
 
-One rule governs all of the above: **every `new` has exactly one matching `delete`,
-traceable through the ownership chain without any shared pointers or ambiguous responsibility.**
+**Constructor:** `PoliceAdapter(p : Police*) : adaptee(p) {}` 
+
+**`~PoliceAdapter()`:** Calls `delete adaptee;` 
+
+**`respond(location : const std::string&, threat : Threat)`   translation steps:**
+
+Step 1   Convert `Threat` → `severity` (int) and `incidentCode` (string):
+```cpp
+int severity = 1; std::string code = "10-10";
+if (threat == Threat::SHOOTING) { severity = 5; code = "10-71"; }
+else if (threat == Threat::FIGHT) { severity = 3; code = "10-15"; }
+else if (threat == Threat::FIRE) { severity = 4; code = "10-70"; }
+``` 
+
+Step 2   Call adaptee:
+```cpp
+adaptee->dispatch(location, severity, code);
+``` 
+
+**`getStatus()`:** Calls `adaptee->confirmDeployment()` .
 
 ---
 
-## Additional Design Decisions
+## `FireFighter`
 
-### Forward Declarations Over Includes in Headers
+**Role:** Adaptee   external service with incompatible interface .
 
-Every header uses forward declarations (`class SecurityGuards;`) instead of including other
-headers where the full class definition is not needed. Full includes only appear in `.cpp`
-files. This prevents circular include chains (particularly important between `IncidentControl`
-and `IncidentState`, which each reference the other) and reduces compilation time.
+| Method | Returns | Implementation notes |
+|---|---|---|
+| `alertStation(location : const std::string&, buildingNumber : int)` | void | Accepts location string and internal integer building identifier . |
+| `getResponseETA()` | int | Returns estimated response time in minutes . |
 
-### `= default` Destructors on Concrete Leaf Classes
+`buildingNumber` is calculated by the adapter's location mapping logic . `getResponseETA()` returns a hardcoded/simulated integer (e.g., 5 minutes) .
 
-Concrete commands, concrete states, and concrete colleagues use `~ClassName() override = default`
-rather than defining an empty destructor body. This is semantically identical but explicitly
-signals that the destructor is intentionally trivial — the class does not own any heap
-resources that need manual cleanup.
+---
 
-### String Events in the Mediator
+## `FireFighterAdapter`
 
-The mediator uses `std::string` event tokens (`"ZONE_LOCKED"`, `"EMERGENCY_DECLARED"`) rather
-than an enum or integer code. This trades a small runtime overhead for complete extensibility —
-adding a new event requires no changes to `CommunicationTeam` or `CommunicationHub`. Any
-colleague can signal any event string and any colleague can react to any subset of strings
-in its `receive()` implementation.
+**Attributes:**
 
-### The Facade Registers Colleagues with the Hub
+| Name | Type | Owned? |
+|---|---|---|
+| `adaptee` | `FireFighter*` | YES   deleted in destructor . |
 
-Colleagues are constructed before the hub registers them — `hub->registerResponder(guards)`
-is called explicitly in the Facade constructor after all colleagues are built. This order
-dependency is intentional and documented. If a colleague were constructed after registration,
-the hub would hold a dangling pointer during the window between construction and registration.
-The Facade controls this order, making it a single point of correctness.
+**Constructor:** `FireFighterAdapter(f : FireFighter*) : adaptee(f) {}` 
+
+**`~FireFighterAdapter()`:** Calls `delete adaptee;` 
+
+**`respond(location : const std::string&, threat : Threat)`   translation steps:**
+
+Step 1   Convert location → `buildingNumber`:
+```cpp
+int bNum = 100;
+if (location.find("Engineering") != std::string::npos) bNum = 101;
+else if (location.find("Library") != std::string::npos) bNum = 202;
+``` 
+
+Step 2   Call adaptee:
+```cpp
+adaptee->alertStation(location, bNum);
+``` 
+
+Step 3   Retrieve and display ETA:
+```cpp
+int eta = adaptee->getResponseETA();
