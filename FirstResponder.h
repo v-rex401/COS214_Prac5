@@ -16,7 +16,7 @@ public:
 
 	void changed(const std::string &event);
 
-	virtual ~FirstResponder() = 0;
+	virtual ~FirstResponder();
 };
 
 #endif
