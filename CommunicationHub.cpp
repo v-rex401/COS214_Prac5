@@ -20,9 +20,16 @@ void CommunicationHub::registerResponder(FirstResponder *r)
 	responders.push_back(r);
 }
 
-void notify(FirstResponder *r, const std::string &event)
+void CommunicationHub::notify(FirstResponder *r, const std::string &event)
 {
-	r->receive(event);
+	// Notify other responders of change
+	for (FirstResponder *ptr : responders)
+	{
+		if (r != ptr)
+		{
+			ptr->receive(event);
+		}
+	}
 }
 
 CommunicationHub::~CommunicationHub()
