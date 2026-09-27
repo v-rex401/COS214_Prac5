@@ -1,10 +1,15 @@
 #ifndef INCIDENTHISTORY_H
 #define INCIDENTHISTORY_H
 
+#include <vector>
+#include <string>
+
+#include "IncidentMemento.h"
+
 class IncidentHistory {
 
 private:
-	std::stack<IncidentMemento*> snapshots;
+	std::vector<IncidentMemento*> snapshots;
 
 public:
 	void push(IncidentMemento* memento);
@@ -13,9 +18,7 @@ public:
 
 	bool isEmpty();
 
-	void ~IncidentHistory();
-
-	void ~IncidentHistory();
+	~IncidentHistory();
 };
 
 #endif

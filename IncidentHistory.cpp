@@ -1,16 +1,44 @@
 #include "IncidentHistory.h"
 
-void IncidentHistory::push(IncidentMemento* memento) {
-	// TODO - implement IncidentHistory::push
-	throw "Not yet implemented";
+#include <iostream>
+
+void IncidentHistory::push(IncidentMemento* memento)
+{
+	this->snapshots.push_back(memento);
 }
 
-IncidentMemento* IncidentHistory::pop() {
-	// TODO - implement IncidentHistory::pop
-	throw "Not yet implemented";
+IncidentMemento* IncidentHistory::pop()
+{
+	if(this->snapshots.empty() == true)
+	{
+		std::cerr << "Warning: snapshots is empty\n";
+		return nullptr;
+	}
+
+	IncidentMemento* memento = this->snapshots.back();
+	this->snapshots.pop_back();
+
+	return memento;
 }
 
-bool IncidentHistory::isEmpty() {
-	// TODO - implement IncidentHistory::isEmpty
-	throw "Not yet implemented";
+bool IncidentHistory::isEmpty()
+{
+	if(this->snapshots.empty() == true)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+IncidentHistory::~IncidentHistory()
+{
+	for(IncidentMemento* memento : this->snapshots)
+	{
+		delete memento;
+	}
+
+	this->snapshots.clear();
 }
