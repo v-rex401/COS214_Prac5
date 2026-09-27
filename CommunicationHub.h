@@ -10,13 +10,11 @@ private:
 	std::vector<FirstResponder *> responders;
 
 public:
-	virtual void notify(FirstResponder *r, const std::string &event);
+	void notify(FirstResponder *r, const std::string &event);
 
 	void removeResponder(FirstResponder *r);
 
 	void registerResponder(FirstResponder *r);
-
-	virtual void notify(FirstResponder *r, const std::string &event);
 
 	~CommunicationHub();
 };
