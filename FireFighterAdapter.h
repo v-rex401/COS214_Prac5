@@ -1,22 +1,24 @@
 #ifndef FIREFIGHTERADAPTER_H
 #define FIREFIGHTERADAPTER_H
 
-class FireFighterAdapter : EmergencyResponder {
+#include <string>
 
-public:
+#include "EmergencyResponder.h"
+#include "FireFighter.h"
+
+class FireFighterAdapter : public EmergencyResponder {
+
+private:
 	FireFighter* adaptee;
 
+public:
 	FireFighterAdapter(FireFighter* f);
 
-	virtual void respond(const std::string& location, Threat threat) = 0;
+	void respond(const std::string& location, Threat threat) override;
 
-	virtual std::string getStatus() = 0;
+	std::string getStatus() const override;
 
-	void ~FireFighterAdapter();
-
-	void respond(const std::string& location, Threat threat);
-
-	void ~FireFighterAdapter();
+	~FireFighterAdapter();
 };
 
 #endif

@@ -1,22 +1,24 @@
 #ifndef AMBULANCEADAPTER_H
 #define AMBULANCEADAPTER_H
 
-class AmbulanceAdapter : EmergencyResponder {
+#include <string>
 
-public:
+#include "EmergencyResponder.h"
+#include "Ambulance.h"
+
+class AmbulanceAdapter : public EmergencyResponder {
+
+private:
 	Ambulance* adaptee;
 
+public:
 	AmbulanceAdapter(Ambulance* a);
 
-	virtual void respond(const std::string& location, Threat threat) = 0;
+	void respond(const std::string& location, Threat threat) override;
 
-	virtual std::string getStatus() = 0;
+	std::string getStatus() const override;
 
-	void ~AmbulanceAdapter();
-
-	void respond(const std::string& location, Threat threat);
-
-	void ~AmbulanceAdapter();
+	~AmbulanceAdapter();
 };
 
 #endif
