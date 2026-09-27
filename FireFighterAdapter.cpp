@@ -5,7 +5,7 @@ FireFighterAdapter::FireFighterAdapter(FireFighter* f)
 
 void FireFighterAdapter::respond(const std::string& location, Threat threat)
 {
-	int buildingNumber = 0; //need to change
+	int buildingNumber = 0; //need to change depending on building
 
 	switch(threat)
 	{
