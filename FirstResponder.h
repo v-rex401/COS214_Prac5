@@ -16,8 +16,6 @@ public:
 
 	void changed(const std::string &event);
 
-	virtual void receive(const std::string &event) = 0;
-
 	virtual ~FirstResponder() = 0;
 };
 
