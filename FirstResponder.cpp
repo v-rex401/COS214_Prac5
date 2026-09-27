@@ -9,3 +9,8 @@ void FirstResponder::changed(const std::string &event)
 {
 	hub->notify(this, event);
 }
+
+FirstResponder::~FirstResponder()
+{
+	delete hub;
+}
