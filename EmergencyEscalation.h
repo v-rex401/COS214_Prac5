@@ -17,8 +17,8 @@ private:
 	AccessControlTeam *access;
 	FirstAidTeam *medics;
 	EmergencyResponder *police;
-	EmergencyResponder *ambulance;
 	EmergencyResponder *fire;
+	EmergencyResponder *ambulance;
 
 public:
 	void undo();
