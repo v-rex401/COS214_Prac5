@@ -3,11 +3,12 @@
 Isolate::Isolate(AccessControlTeam *a, std::string zone)
 {
 	access = a;
+	zone = zone;
 }
 
 void Isolate::execute()
 {
-	access->lockdownZone("ZONE Lockdown");
+	access->lockdownZone(zone);
 }
 
 void Isolate::undo()
