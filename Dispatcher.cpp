@@ -1,5 +1,7 @@
 #include "Dispatcher.h"
 #include <iostream>
+#include <stack>
+#include <queue>
 
 void Dispatcher::issueCommand(Protocol *cmd)
 {
@@ -24,6 +26,16 @@ void Dispatcher::undoLast()
 	commandHistory.pop();
 	prevCmd->undo();
 	delete prevCmd;
+}
+
+std::stack<Protocol *> Dispatcher::getCommandHistory()
+{
+	return commandHistory;
+}
+
+std::queue<Protocol *> Dispatcher::getCommandQueue()
+{
+	return commandQueue;
 }
 
 Dispatcher::~Dispatcher()
