@@ -1,20 +1,23 @@
 #ifndef DISPATCHER_H
 #define DISPATCHER_H
 
-class Dispatcher {
+#include "Protocol.h"
+#include <queue>
+#include <stack>
+
+class Dispatcher
+{
 
 private:
-	std::queue<Protocol*> commandQueue;
-	std::stack<Protocol*> commandHistory;
+	std::queue<Protocol *> commandQueue;
+	std::stack<Protocol *> commandHistory;
 
 public:
-	void issueCommand(Protocol* cmd);
+	void issueCommand(Protocol *cmd);
 
 	void undoLast();
 
-	void ~Dispatcher();
-
-	void ~Dispatcher();
+	~Dispatcher();
 };
 
 #endif

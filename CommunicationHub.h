@@ -1,8 +1,10 @@
 #ifndef COMMUNICATIONHUB_H
 #define COMMUNICATIONHUB_H
+
 #include "CommunicationTeam.h"
-#include "FirstResponder.h"
 #include <vector>
+
+class FirstResponder;
 
 class CommunicationHub : public CommunicationTeam
 {

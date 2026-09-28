@@ -35,3 +35,7 @@ void SecurityGuards::receive(const std::string &event)
 		issueWarning();
 	}
 }
+
+SecurityGuards::~SecurityGuards()
+{
+}

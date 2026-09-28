@@ -14,7 +14,7 @@ void Resolved::escalate(IncidentControl *context)
 }
 std::string Resolved::getLabel()
 {
-	return "Resolved";
+	return "RESOLVED";
 }
 
 Resolved::~Resolved()

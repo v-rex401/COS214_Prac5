@@ -1,10 +1,13 @@
 #ifndef GRANTACCESS_H
 #define GRANTACCESS_H
 
-class GrantAccess : Protocol {
+#include "AccessControlTeam.h"
+#include "Protocol.h"
+class GrantAccess : public Protocol
+{
 
 private:
-	AccessControlTeam* access;
+	AccessControlTeam *access;
 	std::string zone;
 	std::string role;
 
@@ -13,13 +16,9 @@ public:
 
 	void undo();
 
-	GrantAccess(AccessControlTeam* a, std::string zone, std::string role);
+	GrantAccess(AccessControlTeam *a, std::string zone, std::string role);
 
-	GrantAccess(AccessControlTeam* a, std::string zone, std::string role);
-
-	void ~GrantAccess();
-
-	void ~GrantAccess();
+	~GrantAccess();
 };
 
 #endif

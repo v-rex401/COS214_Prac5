@@ -14,3 +14,10 @@ void Emergency::escalate(IncidentControl *context)
 {
 	std::cout << "EMERGENCY cannot be escalted any further";
 }
+
+std::string Emergency::getLabel()
+{
+	return "EMERGENCY";
+}
+
+Emergency::~Emergency() {}

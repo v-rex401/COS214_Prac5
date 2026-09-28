@@ -1,21 +1,19 @@
 #include "Deescalate.h"
 
-void Deescalate::Deescalate(SecurityGuards* s) {
-	// TODO - implement Deescelate::Deescalate
-	throw "Not yet implemented";
+Deescalate::Deescalate(SecurityGuards *s)
+{
+	guards = s;
 }
 
-Deescelate::Deescalate(SecurityGuards* s) {
-	// TODO - implement Deescalate::Deescalate
-	throw "Not yet implemented";
+void Deescalate::execute()
+{
+	guards->changed("DEESCALATE");
 }
 
-void Deescelate::execute() {
-	// TODO - implement Deescalate::execute
-	throw "Not yet implemented";
+void Deescalate::undo()
+{
+	guards->requestBackup();
 }
-
-void Deescelate::undo() {
-	// TODO - implement Deescalate::undo
-	throw "Not yet implemented";
+Deescalate::~Deescalate()
+{
 }

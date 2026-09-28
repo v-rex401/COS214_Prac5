@@ -34,3 +34,7 @@ void FirstAidTeam::receive(const std::string &event)
 		treatInjury();
 	}
 }
+
+FirstAidTeam::~FirstAidTeam()
+{
+}

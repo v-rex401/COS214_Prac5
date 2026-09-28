@@ -1,4 +1,5 @@
 #include "CommunicationHub.h"
+#include "FirstResponder.h"
 
 void CommunicationHub::removeResponder(FirstResponder *r)
 {

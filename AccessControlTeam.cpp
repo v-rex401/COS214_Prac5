@@ -47,3 +47,7 @@ void AccessControlTeam::receive(const std::string &event)
 		unlockZone("Zone-Unspecified");
 	}
 }
+
+AccessControlTeam::~AccessControlTeam()
+{
+}

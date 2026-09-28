@@ -5,14 +5,15 @@
 #include <map>
 
 #include "Threat.h"
+#include "IncidentState.h"
 
-class IncidentState;
 class IncidentMemento;
 
-class IncidentControl {
+class IncidentControl
+{
 
 private:
-	IncidentState* currentState;
+	IncidentState *currentState;
 	int threatCount;
 	std::map<std::string, Threat> activeThreats;
 
@@ -21,15 +22,15 @@ public:
 
 	~IncidentControl();
 
-	void setState(IncidentState* state);
+	void setState(IncidentState *state);
 
 	void escalate();
 
 	void deescalate();
 
-	void addThreat(const std::string& location, Threat threat);
+	void addThreat(const std::string &location, Threat threat);
 
-	void removeThreat(const std::string& location);
+	void removeThreat(const std::string &location);
 
 	void clearThreats();
 
@@ -37,9 +38,9 @@ public:
 
 	std::string getState() const;
 
-	IncidentMemento* createMemento();
+	IncidentMemento *createMemento();
 
-	void restore(IncidentMemento* memento);
+	void restore(IncidentMemento *memento);
 };
 
 #endif

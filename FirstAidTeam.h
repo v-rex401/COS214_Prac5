@@ -2,7 +2,7 @@
 #define FIRSTAIDTEAM_H
 
 #include <string>
-#include "CommunicationTeam.h"
+#include "FirstResponder.h"
 
 class FirstAidTeam : public FirstResponder
 {
