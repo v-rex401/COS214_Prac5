@@ -18,6 +18,9 @@
 #include "IncidentControl.h"
 #include "EmergencyResponseFacade.h"
 
+void scenario1();
+void scenario2();
+
 int main()
 {
     scenario1();
