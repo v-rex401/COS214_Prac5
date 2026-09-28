@@ -1,16 +1,21 @@
 #include "Evacuate.h"
 
-Evacuate::Evacuate(SecurityGuards* g, FacilityStaff* f, AccessControlTeam* a) {
-	// TODO - implement Evacuate::Evacuate
-	throw "Not yet implemented";
+Evacuate::Evacuate(SecurityGuards *g, FacilityStaff *f, AccessControlTeam *a)
+{
+	guards = g;
+	facility = f;
+	access = a;
 }
 
-void Evacuate::execute() {
-	// TODO - implement Evacuate::execute
-	throw "Not yet implemented";
+void Evacuate::execute()
+{
+	guards->clearBuilding();
+	facility->securePremises();
+	access->unlockZone("EXITS");
 }
 
-void Evacuate::undo() {
+void Evacuate::undo()
+{
 	// TODO - implement Evacuate::undo
 	throw "Not yet implemented";
 }
