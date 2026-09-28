@@ -5,8 +5,8 @@ AmbulanceAdapter::AmbulanceAdapter(Ambulance* a)
 
 void AmbulanceAdapter::respond(const std::string& location, Threat threat)
 {
-	double lat = 0.0;  //need to change
-	double lon = 0.0;  //need to change
+	double lat = 0.0;  //need to change depending on building
+	double lon = 0.0;  //need to change depending on building
 	
 	int caseType = 0;
 
