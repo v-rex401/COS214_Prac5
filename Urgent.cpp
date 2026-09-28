@@ -5,13 +5,13 @@
 
 void Urgent::deescalate(IncidentControl *context)
 {
-	std::cout << "URGENT changing to MODERATE";
+	std::cout << "URGENT changing to MODERATE\n";
 	context->setState(new Moderate());
 }
 
 void Urgent::escalate(IncidentControl *context)
 {
-	std::cout << "URGENT escalating to EMERGENCY";
+	std::cout << "URGENT escalating to EMERGENCY\n";
 	context->setState(new Emergency());
 }
 

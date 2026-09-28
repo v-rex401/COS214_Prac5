@@ -8,7 +8,7 @@ void Moderate::deescalate(IncidentControl *context)
 {
 	if (context->getThreatCount() == 0)
 	{
-		std::cout << "MODERATE issued resolved changing to RESOLVED";
+		std::cout << "MODERATE issued resolved changing to RESOLVED\n";
 		context->setState(new Resolved());
 	}
 	else
@@ -19,7 +19,7 @@ void Moderate::deescalate(IncidentControl *context)
 
 void Moderate::escalate(IncidentControl *context)
 {
-	std::cout << "MODERATE issue changing to URGENT";
+	std::cout << "MODERATE issue changing to URGENT\n";
 	context->setState(new Urgent());
 }
 

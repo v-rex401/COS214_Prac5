@@ -6,13 +6,13 @@
 
 void Emergency::deescalate(IncidentControl *context)
 {
-	std::cout << "EMERGENCY deescalating to URGENT";
+	std::cout << "EMERGENCY deescalating to URGENT\n";
 	context->setState(new Urgent());
 }
 
 void Emergency::escalate(IncidentControl *context)
 {
-	std::cout << "EMERGENCY cannot be escalted any further";
+	std::cout << "EMERGENCY cannot be escalted any further\n";
 }
 
 std::string Emergency::getLabel()

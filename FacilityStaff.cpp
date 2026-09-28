@@ -17,7 +17,7 @@ void FacilityStaff::securePremises()
 
 void FacilityStaff::receive(const std::string &event)
 {
-	std::cout << "[FACILITY] Event received: " + event;
+	std::cout << "[FACILITY] Event received: " + event << std::endl;
 
 	if (event == "MAINTENANCE_ESCALATED" || event == "MEDICAL_EMERGENCY_ESCALATED")
 	{
