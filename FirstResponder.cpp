@@ -1,16 +1,16 @@
 #include "FirstResponder.h"
 
-FirstResponder::FirstResponder(CommunicationTeam* hub) {
-	// TODO - implement FirstResponder::FirstResponder
-	throw "Not yet implemented";
+FirstResponder::FirstResponder(CommunicationTeam *hub)
+{
+	this->hub = hub;
 }
 
-void FirstResponder::changed(const std::string& event) {
-	// TODO - implement FirstResponder::changed
-	throw "Not yet implemented";
+void FirstResponder::changed(const std::string &event)
+{
+	hub->notify(this, event);
 }
 
-void FirstResponder::changed(const std::string& event) {
-	// TODO - implement FirstResponder::changed
-	throw "Not yet implemented";
+FirstResponder::~FirstResponder()
+{
+	delete hub;
 }

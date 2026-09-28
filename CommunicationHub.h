@@ -1,22 +1,22 @@
 #ifndef COMMUNICATIONHUB_H
 #define COMMUNICATIONHUB_H
+#include "CommunicationTeam.h"
+#include "FirstResponder.h"
+#include <vector>
 
-class CommunicationHub : CommunicationTeam {
+class CommunicationHub : public CommunicationTeam
+{
+private:
+	std::vector<FirstResponder *> responders;
 
 public:
-	std::vector<FirstResponder*> responders;
+	void notify(FirstResponder *r, const std::string &event);
 
-	virtual void notify(FirstResponder* r, const std::string& event) = 0;
+	void removeResponder(FirstResponder *r);
 
-	void removeResponder(FirstResponder* r);
+	void registerResponder(FirstResponder *r);
 
-	void registerResponder(FirstResponder* r);
-
-	virtual void notify(FirstResponder* r, const std::string& event) = 0;
-
-	void ~CommunicationHub();
-
-	void ~CommunicationHub();
+	~CommunicationHub();
 };
 
 #endif
