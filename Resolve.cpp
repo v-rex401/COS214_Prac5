@@ -1,16 +1,20 @@
 #include "Resolve.h"
 
-void Resolve::execute() {
-	// TODO - implement Resolve::execute
-	throw "Not yet implemented";
+void Resolve::execute()
+{
+	facility->changed("RESOLVED");
+	access->changed("RESOLVED");
+	// TODO - CHANGE THE STATE
 }
 
-void Resolve::undo() {
+void Resolve::undo()
+{
 	// TODO - implement Resolve::undo
 	throw "Not yet implemented";
 }
 
-Resolve::Resolve(FacilityStaff* f, AccessControlTeam* a) {
-	// TODO - implement Resolve::Resolve
-	throw "Not yet implemented";
+Resolve::Resolve(FacilityStaff *f, AccessControlTeam *a)
+{
+	facility = f;
+	access = a;
 }
