@@ -1,16 +1,23 @@
+#include "EmergencyEscalation.h"
 
-
-void EmergencyEscalation::undo() {
+void EmergencyEscalation::undo()
+{
 	// TODO - implement EmergencyEscalation::undo
 	throw "Not yet implemented";
 }
 
-void EmergencyEscalation::execute() {
+void EmergencyEscalation::execute()
+{
 	// TODO - implement EmergencyEscalation::execute
 	throw "Not yet implemented";
 }
 
-EmergencyEscalation::EmergencyEscalation(SecuritGuards* s, FacilityStaff* f, AccessControlTeam* a, FirstAidTeam* m, EmergencyResponder* p, EmergencyResponder* fire, EmergencyResponder* am) {
+EmergencyEscalation::EmergencyEscalation(SecurityGuards *s, FacilityStaff *f, AccessControlTeam *a, FirstAidTeam *m, EmergencyResponder *p, EmergencyResponder *fire, EmergencyResponder *am)
+{
 	// TODO - implement EmergencyEscalation::EmergencyEscalation
 	throw "Not yet implemented";
+}
+
+EmergencyEscalation::~EmergencyEscalation()
+{
 }

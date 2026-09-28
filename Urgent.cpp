@@ -14,3 +14,9 @@ void Urgent::escalate(IncidentControl *context)
 	std::cout << "URGENT escalating to EMERGENCY";
 	context->setState(new Emergency());
 }
+
+std::string Urgent::getLabel()
+{
+	return "URGENT";
+}
+Urgent::~Urgent() {}

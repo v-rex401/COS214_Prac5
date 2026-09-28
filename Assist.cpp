@@ -19,8 +19,4 @@ void Assist::undo()
 
 Assist::~Assist()
 {
-	if (medics != nullptr)
-		delete medics;
-	if (access != nullptr)
-		delete access;
 }

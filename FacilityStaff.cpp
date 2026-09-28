@@ -28,3 +28,7 @@ void FacilityStaff::receive(const std::string &event)
 		dispatchMaintenance();
 	}
 }
+
+FacilityStaff::~FacilityStaff()
+{
+}

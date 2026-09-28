@@ -18,6 +18,4 @@ void Isolate::undo()
 
 Isolate::~Isolate()
 {
-	if (access != nullptr)
-		delete access;
 }

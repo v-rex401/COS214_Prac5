@@ -1,12 +1,14 @@
 #ifndef FIRSTRESPONDER_H
 #define FIRSTRESPONDER_H
 #include "CommunicationHub.h"
-#include "CommunicationTeam.h"
+#include <string>
+
+class CommunicationTeam;
 
 class FirstResponder
 {
 
-protected:
+private:
 	CommunicationTeam *hub; /**This is the mediator */
 
 public:

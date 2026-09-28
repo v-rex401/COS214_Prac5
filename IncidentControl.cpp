@@ -2,16 +2,20 @@
 #include "IncidentControl.h"
 #include "IncidentState.h"
 #include "IncidentMemento.h"
+#include "Moderate.h"
+#include "Urgent.h"
+#include "Resolved.h"
+#include "Emergency.h"
 
 IncidentControl::IncidentControl()
-: currentState(new Moderate()), threatCount(0) {}
+	: currentState(new Moderate()), threatCount(0) {}
 
 IncidentControl::~IncidentControl()
 {
 	delete currentState;
 }
 
-void IncidentControl::setState(IncidentState* state)
+void IncidentControl::setState(IncidentState *state)
 {
 	delete this->currentState;
 	this->currentState = state;
@@ -27,7 +31,7 @@ void IncidentControl::deescalate()
 	this->currentState->deescalate(this);
 }
 
-void IncidentControl::addThreat(const std::string& location, Threat threat)
+void IncidentControl::addThreat(const std::string &location, Threat threat)
 {
 	this->activeThreats[location] = threat;
 	this->threatCount = static_cast<int>(this->activeThreats.size());
@@ -35,7 +39,7 @@ void IncidentControl::addThreat(const std::string& location, Threat threat)
 	this->escalate();
 }
 
-void IncidentControl::removeThreat(const std::string& location)
+void IncidentControl::removeThreat(const std::string &location)
 {
 	this->activeThreats.erase(location);
 	this->threatCount = static_cast<int>(this->activeThreats.size());
@@ -61,14 +65,14 @@ std::string IncidentControl::getState() const
 	return this->currentState->getLabel();
 }
 
-IncidentMemento* IncidentControl::createMemento()
+IncidentMemento *IncidentControl::createMemento()
 {
 	return new IncidentMemento(this->threatCount, this->activeThreats, this->currentState->getLabel());
 }
 
-void IncidentControl::restore(IncidentMemento* memento)
+void IncidentControl::restore(IncidentMemento *memento)
 {
-	if(memento == nullptr)
+	if (memento == nullptr)
 	{
 		std::cerr << "Warning: Null memento\n";
 		return;
@@ -79,19 +83,19 @@ void IncidentControl::restore(IncidentMemento* memento)
 
 	const std::string stateLabel = memento->getStateLabel();
 
-	if(stateLabel == "MODERATE")
+	if (stateLabel == "MODERATE")
 	{
 		this->setState(new Moderate());
 	}
-	else if(stateLabel == "URGENT")
+	else if (stateLabel == "URGENT")
 	{
 		this->setState(new Urgent());
 	}
-	else if(stateLabel == "EMERGENCY")
+	else if (stateLabel == "EMERGENCY")
 	{
 		this->setState(new Emergency());
 	}
-	else if(stateLabel == "RESOLVED")
+	else if (stateLabel == "RESOLVED")
 	{
 		this->setState(new Resolved());
 	}

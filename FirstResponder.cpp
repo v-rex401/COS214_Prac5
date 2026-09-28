@@ -12,5 +12,4 @@ void FirstResponder::changed(const std::string &event)
 
 FirstResponder::~FirstResponder()
 {
-	delete hub;
 }

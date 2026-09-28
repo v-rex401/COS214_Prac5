@@ -1,6 +1,10 @@
 #ifndef INCIDENTSTATE_H
 #define INCIDENTSTATE_H
 
+#include <string>
+
+class IncidentControl;
+
 class IncidentState
 {
 

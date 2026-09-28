@@ -17,6 +17,4 @@ void Deescalate::undo()
 }
 Deescalate::~Deescalate()
 {
-	if (guards != nullptr)
-		delete guards;
 }

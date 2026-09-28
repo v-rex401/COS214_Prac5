@@ -19,8 +19,6 @@ public:
 
 	void undo();
 
-	Isolate(AccessControlTeam *a, std::string zone);
-
 	~Isolate();
 };
 

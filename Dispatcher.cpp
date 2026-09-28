@@ -18,3 +18,7 @@ void Dispatcher::undoLast()
 	// TODO - implement Dispatcher::undoLast
 	throw "Not yet implemented";
 }
+
+Dispatcher::~Dispatcher()
+{
+}

@@ -1,6 +1,10 @@
 #ifndef EMERGENCY_H
 #define EMERGENCY_H
 
+#include "IncidentControl.h"
+#include <string>
+class IncidentControl;
+
 class Emergency : public IncidentState
 {
 
@@ -9,7 +13,7 @@ public:
 
 	void deescalate(IncidentControl *context);
 
-	virtual std::string getLabel();
+	std::string getLabel();
 
 	~Emergency();
 };
