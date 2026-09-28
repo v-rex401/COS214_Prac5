@@ -1,16 +1,13 @@
 #include "Ambulance.h"
 
-void Ambulance::dispatch(const std::string& location, int caseType) {
-	// TODO - implement Ambulance::dispatch
-	throw "Not yet implemented";
+#include <iostream>
+
+bool Ambulance::getUnitAvailability()
+{
+	return true; //need to change
 }
 
-boolean Ambulance::getUnitAvailability() {
-	// TODO - implement Ambulance::getUnitAvailability
-	throw "Not yet implemented";
-}
-
-void Ambulance::dispatch(int caseType, double lat, double lon) {
-	// TODO - implement Ambulance::dispatch
-	throw "Not yet implemented";
+void Ambulance::dispatch(int caseType, double lat, double lon)
+{
+	std::cout << "Dispatching ambulance to coordinates (" << lat << ", " << lon << ") for case type " << caseType << "\n";
 }
