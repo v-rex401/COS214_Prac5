@@ -1,8 +1,8 @@
-TARGET = test
+TARGET = main
 
 # ResponderComponent, Iterator and UnitState have no matching .cpp -
 # they're abstract/header-only, so there's no .o to build for them.
-OBJS = test.o \
+OBJS = main.o \
 AccessControlTeam.o Ambulance.o AmbulanceAdapter.o Assist.o \
 CommunicationHub.o Deescalate.o Dispatcher.o Emergency.o \
 EmergencyEscalation.o Evacuate.o FacilityStaff.o FireFighter.o \
@@ -14,8 +14,8 @@ SecurityGuards.o Urgent.o EmergencyResponseFacade.o
 $(TARGET): $(OBJS)
 	g++ -std=c++11 -g -o $(TARGET) $(OBJS)
 
-test.o: test.cpp
-	g++ -std=c++11 -g -c test.cpp
+main.o: main.cpp
+	g++ -std=c++11 -g -c main.cpp
 
 EmergEmergencyResponseFacade.o:EmergencyResponseFacade.cpp
 	g++ -std=c++11 -g -cEmergencyResponseFacade.cpp

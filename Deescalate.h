@@ -8,10 +8,10 @@
 
 class Deescalate : public Protocol
 {
-
-public:
+private:
 	SecurityGuards *guards;
 
+public:
 	Deescalate(SecurityGuards *s);
 
 	void execute();

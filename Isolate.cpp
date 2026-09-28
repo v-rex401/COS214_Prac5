@@ -3,7 +3,7 @@
 Isolate::Isolate(AccessControlTeam *a, std::string zone)
 {
 	access = a;
-	zone = zone;
+	this->zone = zone;
 }
 
 void Isolate::execute()

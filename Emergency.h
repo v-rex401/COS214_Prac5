@@ -9,7 +9,7 @@ class Emergency : public IncidentState
 {
 
 public:
-	virtual void escalate(IncidentControl *context);
+	void escalate(IncidentControl *context);
 
 	void deescalate(IncidentControl *context);
 

@@ -1,5 +1,6 @@
 #include "CommunicationHub.h"
 #include "FirstResponder.h"
+#include <iostream>
 
 void CommunicationHub::removeResponder(FirstResponder *r)
 {
@@ -17,11 +18,11 @@ void CommunicationHub::removeResponder(FirstResponder *r)
 
 void CommunicationHub::registerResponder(FirstResponder *r)
 {
-	for(FirstResponder *ptr : responders)
+	for (FirstResponder *ptr : responders)
 	{
-		if(r == ptr)
+		if (r == ptr)
 		{
-			return; //responder already registered
+			return; // responder already registered
 		}
 	}
 	responders.push_back(r);
@@ -29,9 +30,11 @@ void CommunicationHub::registerResponder(FirstResponder *r)
 
 void CommunicationHub::notify(FirstResponder *r, const std::string &event)
 {
+
 	// Notify other responders of change
 	for (FirstResponder *ptr : responders)
 	{
+
 		if (r != ptr)
 		{
 			ptr->receive(event);

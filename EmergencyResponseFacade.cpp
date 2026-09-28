@@ -30,11 +30,12 @@ EmergencyResponseFacade::EmergencyResponseFacade()
 	guards = new SecurityGuards(hub);
 	access = new AccessControlTeam(hub);
 
-	// add responders to hub
-	hub->registerResponder(facility);
+	// add responders to hub - FIX: MIGHT NOT BE NEEDED BECUASE ITS IN CONSTRUCTOR
+	/* hub->registerResponder(facility);
 	hub->registerResponder(medics);
 	hub->registerResponder(guards);
 	hub->registerResponder(access);
+ */
 
 	// create state
 	controller = new IncidentControl();
@@ -67,7 +68,7 @@ void EmergencyResponseFacade::reportIncident(const std::string &location, Threat
 	history->push(controller->createMemento());
 
 	// notify responders of incident
-	hub->notify(nullptr, "INCIDENT_REPORTED");
+	/* hub->notify(nullptr, "INCIDENT_REPORTED"); */
 
 	// issue commands to responders
 	dispatcher->issueCommand(new Isolate(access, location));
@@ -87,7 +88,7 @@ void EmergencyResponseFacade::escalateToEmergency()
 	dispatcher->issueCommand(new EmergencyEscalation(guards, facility, access, medics, police, fire, ambulance));
 
 	// notify responders of escalation
-	hub->notify(nullptr, "EMERGENCY_ESCALATED");
+	/* hub->notify(nullptr, "EMERGENCY_ESCALATED"); */
 }
 
 void EmergencyResponseFacade::resolveIncident()
@@ -104,7 +105,7 @@ void EmergencyResponseFacade::resolveIncident()
 	history->push(controller->createMemento());
 
 	// notify responders of resolution
-	hub->notify(nullptr, "INCIDENT_RESOLVED");
+	/* hub->notify(nullptr, "INCIDENT_RESOLVED"); */
 }
 
 void EmergencyResponseFacade::addThreat(const std::string &location, Threat threat)
