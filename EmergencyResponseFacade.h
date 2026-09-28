@@ -1,6 +1,8 @@
 #ifndef EMERGENCYRESPONSEFACADE_H
 #define EMERGENCYRESPONSEFACADE_H
 
+#include <string>
+
 #include "IncidentControl.h"
 #include "CommunicationHub.h"
 #include "FirstAidTeam.h"
@@ -10,6 +12,7 @@
 #include "EmergencyResponder.h"
 #include "IncidentHistory.h"
 #include "Dispatcher.h"
+#include "Threat.h"
 
 class EmergencyResponseFacade
 {

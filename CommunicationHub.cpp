@@ -4,20 +4,26 @@
 void CommunicationHub::removeResponder(FirstResponder *r)
 {
 	// Find the responder first
-	for (int i = 0; i < responders.size(); i++)
+	for (std::size_t i = 0; i < responders.size(); i++)
 	{
-		if (responders[i] != nullptr)
+		if (responders[i] == r)
 		{
-			if (r == responders[i])
-			{
-				responders.erase(responders.begin() + i);
-			}
+			responders.erase(responders.begin() + i);
+
+			return;
 		}
 	}
 }
 
 void CommunicationHub::registerResponder(FirstResponder *r)
 {
+	for(FirstResponder *ptr : responders)
+	{
+		if(r == ptr)
+		{
+			return; //responder already registered
+		}
+	}
 	responders.push_back(r);
 }
 
@@ -35,11 +41,5 @@ void CommunicationHub::notify(FirstResponder *r, const std::string &event)
 
 CommunicationHub::~CommunicationHub()
 {
-	for (FirstResponder *ptr : responders)
-	{
-		if (ptr != nullptr)
-		{
-			delete ptr;
-		}
-	}
+	responders.clear();
 }

@@ -9,13 +9,16 @@ EmergencyEscalation.o Evacuate.o FacilityStaff.o FireFighter.o \
 FireFighterAdapter.o FirstAidTeam.o FirstResponder.o GrantAccess.o \
 IncidentControl.o IncidentHistory.o IncidentMemento.o Isolate.o \
 Moderate.o Police.o PoliceAdapter.o Resolve.o Resolved.o \
-SecurityGuards.o Urgent.o
+SecurityGuards.o Urgent.o EmergencyResponseFacade.o
 
 $(TARGET): $(OBJS)
 	g++ -std=c++11 -g -o $(TARGET) $(OBJS)
 
 test.o: test.cpp
 	g++ -std=c++11 -g -c test.cpp
+
+EmergEmergencyResponseFacade.o:EmergencyResponseFacade.cpp
+	g++ -std=c++11 -g -cEmergencyResponseFacade.cpp
 
 AccessControlTeam.o: AccessControlTeam.cpp
 	g++ -std=c++11 -g -c AccessControlTeam.cpp
