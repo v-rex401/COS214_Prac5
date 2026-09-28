@@ -8,7 +8,6 @@ Isolate::Isolate(AccessControlTeam *a, std::string zone)
 void Isolate::execute()
 {
 	access->lockdownZone("ZONE Lockdown");
-	// TODO - CHANGE STATE
 }
 
 void Isolate::undo()

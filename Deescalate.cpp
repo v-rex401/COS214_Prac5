@@ -7,7 +7,7 @@ Deescalate::Deescalate(SecurityGuards *s)
 
 void Deescalate::execute()
 {
-	// TODO: Figure out what to do here
+	guards->changed("DEESCALATE");
 }
 
 void Deescalate::undo()

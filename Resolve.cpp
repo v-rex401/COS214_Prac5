@@ -4,7 +4,6 @@ void Resolve::execute()
 {
 	facility->changed("RESOLVED");
 	access->changed("RESOLVED");
-	// TODO - CHANGE THE STATE
 }
 
 void Resolve::undo()

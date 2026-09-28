@@ -10,7 +10,6 @@ GrantAccess::GrantAccess(AccessControlTeam *a, std::string zone, std::string rol
 void GrantAccess::execute()
 {
 	access->grantEmergencyAccess();
-	// TODO - CHANGE STATE
 }
 
 void GrantAccess::undo()
