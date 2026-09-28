@@ -17,3 +17,11 @@ Resolve::Resolve(FacilityStaff *f, AccessControlTeam *a)
 	facility = f;
 	access = a;
 }
+
+Resolve::~Resolve()
+{
+	if (facility != nullptr)
+		delete facility;
+	if (access != nullptr)
+		delete access;
+}

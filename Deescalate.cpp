@@ -15,3 +15,8 @@ void Deescalate::undo()
 	// TODO - implement Deescalate::undo
 	throw "Not yet implemented";
 }
+Deescalate::~Deescalate()
+{
+	if (guards != nullptr)
+		delete guards;
+}

@@ -18,8 +18,8 @@ void GrantAccess::undo()
 	throw "Not yet implemented";
 }
 
-GrantAccess::GrantAccess(AccessControlTeam *a, std::string zone, std::string role)
+GrantAccess::~GrantAccess()
 {
-	// TODO - implement GrantAccess::GrantAccess
-	throw "Not yet implemented";
+	if (access != nullptr)
+		delete access;
 }

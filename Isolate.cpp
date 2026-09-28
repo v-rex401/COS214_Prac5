@@ -15,3 +15,9 @@ void Isolate::undo()
 	// TODO - implement Isolate::undo
 	throw "Not yet implemented";
 }
+
+Isolate::~Isolate()
+{
+	if (access != nullptr)
+		delete access;
+}
