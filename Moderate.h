@@ -6,8 +6,6 @@
 
 class Moderate : public IncidentState
 {
-private:
-	IncidentControl context;
 
 public:
 	virtual void escalate(IncidentControl *context);

@@ -14,6 +14,8 @@ public:
 	virtual void deescalate(IncidentControl *context) = 0;
 
 	virtual std::string getLabel() = 0;
+
+	virtual ~IncidentState() {}
 };
 
 #endif
