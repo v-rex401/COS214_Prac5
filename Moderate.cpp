@@ -6,8 +6,15 @@
 
 void Moderate::deescalate(IncidentControl *context)
 {
-	std::cout << "MODERATE issued resolved changing to RESOLVED";
-	context->setState(new Resolved());
+	if (context->getThreatCount() == 0)
+	{
+		std::cout << "MODERATE issued resolved changing to RESOLVED";
+		context->setState(new Resolved());
+	}
+	else
+	{
+		std::cout << "MODERATE is already the minimum active state\n";
+	}
 }
 
 void Moderate::escalate(IncidentControl *context)
@@ -18,5 +25,5 @@ void Moderate::escalate(IncidentControl *context)
 
 std::string Moderate::getLabel()
 {
-	return "Moderate";
+	return "MODERATE";
 }

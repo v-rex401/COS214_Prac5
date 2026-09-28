@@ -6,6 +6,7 @@ void Dispatcher::issueCommand(Protocol *cmd)
 	if (cmd != nullptr)
 	{
 		cmd->execute();
+		commandHistory.push(cmd);
 	}
 	else
 	{
@@ -15,10 +16,21 @@ void Dispatcher::issueCommand(Protocol *cmd)
 
 void Dispatcher::undoLast()
 {
-	// TODO - implement Dispatcher::undoLast
-	throw "Not yet implemented";
+	if (commandHistory.empty())
+	{
+		return;
+	}
+	Protocol *prevCmd = commandHistory.top();
+	commandHistory.pop();
+	prevCmd->undo();
+	delete prevCmd;
 }
 
 Dispatcher::~Dispatcher()
 {
+	while (!commandHistory.empty())
+	{
+		delete commandHistory.top();
+		commandHistory.pop();
+	}
 }

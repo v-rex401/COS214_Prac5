@@ -1,4 +1,5 @@
 #include "Assist.h"
+#include <iostream>
 
 Assist::Assist(FirstAidTeam *m, AccessControlTeam *a)
 {
@@ -13,8 +14,7 @@ void Assist::execute()
 
 void Assist::undo()
 {
-	// TODO - implement Assist::undo
-	throw "Not yet implemented";
+	std::cout << "[ASSIST] Assistance protocol rolled back.\n";
 }
 
 Assist::~Assist()

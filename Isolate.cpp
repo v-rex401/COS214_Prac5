@@ -12,8 +12,7 @@ void Isolate::execute()
 
 void Isolate::undo()
 {
-	// TODO - implement Isolate::undo
-	throw "Not yet implemented";
+	access->unlockZone(zone);
 }
 
 Isolate::~Isolate()

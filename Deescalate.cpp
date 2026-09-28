@@ -12,8 +12,7 @@ void Deescalate::execute()
 
 void Deescalate::undo()
 {
-	// TODO - implement Deescalate::undo
-	throw "Not yet implemented";
+	guards->requestBackup();
 }
 Deescalate::~Deescalate()
 {

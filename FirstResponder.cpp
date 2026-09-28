@@ -3,11 +3,14 @@
 FirstResponder::FirstResponder(CommunicationTeam *hub)
 {
 	this->hub = hub;
+	if (hub != nullptr)
+		hub->registerResponder(this);
 }
 
 void FirstResponder::changed(const std::string &event)
 {
-	hub->notify(this, event);
+	if (hub != nullptr)
+		hub->notify(this, event);
 }
 
 FirstResponder::~FirstResponder()

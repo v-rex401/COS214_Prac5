@@ -8,8 +8,7 @@ void Resolve::execute()
 
 void Resolve::undo()
 {
-	// TODO - implement Resolve::undo
-	throw "Not yet implemented";
+	access->lockdownZone("ALL");
 }
 
 Resolve::Resolve(FacilityStaff *f, AccessControlTeam *a)
@@ -20,8 +19,4 @@ Resolve::Resolve(FacilityStaff *f, AccessControlTeam *a)
 
 Resolve::~Resolve()
 {
-	if (facility != nullptr)
-		delete facility;
-	if (access != nullptr)
-		delete access;
 }

@@ -9,17 +9,16 @@ GrantAccess::GrantAccess(AccessControlTeam *a, std::string zone, std::string rol
 
 void GrantAccess::execute()
 {
+	access->unlockZone(zone);
 	access->grantEmergencyAccess();
 }
 
 void GrantAccess::undo()
 {
-	// TODO - implement GrantAccess::undo
-	throw "Not yet implemented";
+	access->revokeAccess(zone, role);
+	access->lockdownZone(zone);
 }
 
 GrantAccess::~GrantAccess()
 {
-	if (access != nullptr)
-		delete access;
 }
