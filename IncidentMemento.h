@@ -1,19 +1,25 @@
 #ifndef INCIDENTMEMENTO_H
 #define INCIDENTMEMENTO_H
 
-class IncidentMemento {
+#include <map>
+#include <string>
 
+#include "Threat.h"
+
+class IncidentMemento {
 private:
 	int threatCount;
 	std::map<std::string, Threat> activeThreats;
 	std::string stateLabel;
 
 public:
-	int getThreatCount();
+	IncidentMemento(int threatCount, const std::map<std::string, Threat>& activeThreats, const std::string& stateLabel);
 
-	std::map getActiveThreats();
+	int getThreatCount() const;
 
-	std::string getStateLabel();
+	std::map<std::string, Threat> getActiveThreats() const;
+
+	std::string getStateLabel() const;
 };
 
 #endif

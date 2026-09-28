@@ -1,6 +1,14 @@
 #ifndef INCIDENTCONTROL_H
 #define INCIDENTCONTROL_H
 
+#include <string>
+#include <map>
+
+#include "Threat.h"
+
+class IncidentState;
+class IncidentMemento;
+
 class IncidentControl {
 
 private:
@@ -11,7 +19,7 @@ private:
 public:
 	IncidentControl();
 
-	void ~IncidentControl();
+	~IncidentControl();
 
 	void setState(IncidentState* state);
 
@@ -25,19 +33,13 @@ public:
 
 	void clearThreats();
 
-	int getThreatCount();
+	int getThreatCount() const;
 
-	const std::string getState();
+	std::string getState() const;
 
 	IncidentMemento* createMemento();
 
 	void restore(IncidentMemento* memento);
-
-	void ~IncidentControl();
-
-	void addThreat(const std::string& location, Threat threat);
-
-	void removeThreat(const std::string& location);
 };
 
 #endif
