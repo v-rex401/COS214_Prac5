@@ -1,20 +1,24 @@
 #ifndef DEESCALATE_H
 #define DEESCALATE_H
 
-class Deescalate : Protocol {
+#include "SecurityGuards.h"
+#include "FacilityStaff.h"
+#include "AccessControlTeam.h"
+#include "Protocol.h"
+
+class Deescalate : public Protocol
+{
 
 public:
-	SecurityGuards* guards;
+	SecurityGuards *guards;
 
-	void Deescalate(SecurityGuards* s);
+	Deescalate(SecurityGuards *s);
 
 	void execute();
 
 	void undo();
 
-	void ~Deescalate();
-
-	void ~Deescalate();
+	~Deescalate();
 };
 
 #endif

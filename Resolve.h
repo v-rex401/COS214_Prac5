@@ -1,20 +1,25 @@
 #ifndef RESOLVE_H
 #define RESOLVE_H
 
-class Resolve : Protocol {
+#include "FacilityStaff.h"
+#include "AccessControlTeam.h"
+#include "Protocol.h"
+
+class Resolve : public Protocol
+{
 
 private:
-	FacilityStaff* facility;
-	AccessControlTeam* access;
+	FacilityStaff *facility;
+	AccessControlTeam *access;
 
 public:
 	void execute();
 
 	void undo();
 
-	Resolve(FacilityStaff* f, AccessControlTeam* a);
+	Resolve(FacilityStaff *f, AccessControlTeam *a);
 
-	void ~Resolve();
+	~Resolve();
 };
 
 #endif
