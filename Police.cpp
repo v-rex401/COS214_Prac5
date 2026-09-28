@@ -1,16 +1,13 @@
 #include "Police.h"
 
-void Police::dispatch(const std::string& location, int severity) {
-	// TODO - implement Police::dispatch
-	throw "Not yet implemented";
+#include <iostream>
+
+std::string Police::confirmDeployment()
+{
+	return "Police have been deployed";
 }
 
-std::string Police::confirmDeployment() {
-	// TODO - implement Police::confirmDeployment
-	throw "Not yet implemented";
-}
-
-void Police::dispatch(const std::string& location, int severity, int incidentCode) {
-	// TODO - implement Police::dispatch
-	throw "Not yet implemented";
+void Police::dispatch(const std::string& location, int severity, int incidentCode)
+{
+	std::cout << "Dispatching police to " << location << " with severity level " << severity << " and incident code " << incidentCode << "\n";
 }

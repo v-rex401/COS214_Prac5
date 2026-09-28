@@ -1,65 +1,108 @@
+#include <iostream>
 #include "IncidentControl.h"
+#include "IncidentState.h"
+#include "IncidentMemento.h"
+#include "Moderate.h"
+#include "Urgent.h"
+#include "Resolved.h"
+#include "Emergency.h"
 
-IncidentControl::IncidentControl() {
-	// TODO - implement IncidentControl::IncidentControl
-	throw "Not yet implemented";
+IncidentControl::IncidentControl()
+	: currentState(new Moderate()), threatCount(0) {}
+
+IncidentControl::~IncidentControl()
+{
+	delete currentState;
 }
 
-void IncidentControl::setState(IncidentState* state) {
-	// TODO - implement IncidentControl::setState
-	throw "Not yet implemented";
+void IncidentControl::setState(IncidentState *state)
+{
+	delete this->currentState;
+	this->currentState = state;
 }
 
-void IncidentControl::escalate() {
-	// TODO - implement IncidentControl::escalate
-	throw "Not yet implemented";
+void IncidentControl::escalate()
+{
+	this->currentState->escalate(this);
 }
 
-void IncidentControl::deescalate() {
-	// TODO - implement IncidentControl::deescalate
-	throw "Not yet implemented";
+void IncidentControl::deescalate()
+{
+	this->currentState->deescalate(this);
 }
 
-void IncidentControl::addThreat(const std::string& location, Threat threat) {
-	// TODO - implement IncidentControl::addThreat
-	throw "Not yet implemented";
+void IncidentControl::addThreat(const std::string &location, Threat threat)
+{
+	this->activeThreats[location] = threat;
+	this->threatCount = static_cast<int>(this->activeThreats.size());
+
+	this->escalate();
 }
 
-void IncidentControl::removeThreat(const std::string& location) {
-	// TODO - implement IncidentControl::removeThreat
-	throw "Not yet implemented";
+void IncidentControl::removeThreat(const std::string &location)
+{
+	this->activeThreats.erase(location);
+	this->threatCount = static_cast<int>(this->activeThreats.size());
+
+	this->deescalate();
 }
 
-void IncidentControl::clearThreats() {
-	// TODO - implement IncidentControl::clearThreats
-	throw "Not yet implemented";
+void IncidentControl::clearThreats()
+{
+	this->activeThreats.clear();
+	this->threatCount = 0;
+
+	this->setState(new Resolved());
 }
 
-int IncidentControl::getThreatCount() {
+int IncidentControl::getThreatCount() const
+{
 	return this->threatCount;
 }
 
-const std::string IncidentControl::getState() {
-	// TODO - implement IncidentControl::getState
-	throw "Not yet implemented";
+std::string IncidentControl::getState() const
+{
+	return this->currentState->getLabel();
 }
 
-IncidentMemento* IncidentControl::createMemento() {
-	// TODO - implement IncidentControl::createMemento
-	throw "Not yet implemented";
+IncidentMemento *IncidentControl::createMemento()
+{
+	return new IncidentMemento(this->threatCount, this->activeThreats, this->currentState->getLabel());
 }
 
-void IncidentControl::restore(IncidentMemento* memento) {
-	// TODO - implement IncidentControl::restore
-	throw "Not yet implemented";
-}
+void IncidentControl::restore(IncidentMemento *memento)
+{
+	if (memento == nullptr)
+	{
+		std::cerr << "Warning: Null memento\n";
+		return;
+	}
 
-void IncidentControl::addThreat(const std::string& location, Threat threat) {
-	// TODO - implement IncidentControl::addThreat
-	throw "Not yet implemented";
-}
+	this->threatCount = memento->getThreatCount();
+	this->activeThreats = memento->getActiveThreats();
 
-void IncidentControl::removeThreat(const std::string& location) {
-	// TODO - implement IncidentControl::removeThreat
-	throw "Not yet implemented";
+	const std::string stateLabel = memento->getStateLabel();
+
+	if (stateLabel == "MODERATE")
+	{
+		this->setState(new Moderate());
+	}
+	else if (stateLabel == "URGENT")
+	{
+		this->setState(new Urgent());
+	}
+	else if (stateLabel == "EMERGENCY")
+	{
+		this->setState(new Emergency());
+	}
+	else if (stateLabel == "RESOLVED")
+	{
+		this->setState(new Resolved());
+	}
+	else
+	{
+		std::cerr << "Warning: Unknown state label: " << stateLabel << "\n";
+	}
+
+	delete memento;
 }

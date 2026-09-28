@@ -1,37 +1,29 @@
 #ifndef ACCESSCONTROLTEAM_H
 #define ACCESSCONTROLTEAM_H
 
-class AccessControlTeam : FirstResponder {
+#include <string>
+#include "FirstResponder.h"
+#include "CommunicationTeam.h"
 
+class AccessControlTeam : public FirstResponder
+{
 
 public:
-	AccessControlTeam(CommunicationTeam* hub);
+	AccessControlTeam(CommunicationTeam *hub);
 
-	virtual void receive(const std::string& event) = 0;
+	void unlockZone(const std::string &zone);
 
-	void unlockZone(const std::string& zone);
-
-	void lockdownZone(const std::string& zone);
+	void lockdownZone(const std::string &zone);
 
 	void grantEmergencyAccess();
 
-	void revokeAccess(const std::string& zone, const std::string& role);
+	void revokeAccess(const std::string &zone, const std::string &role);
 
-	void broadcastRestriction(const std::string& zone);
+	void broadcastRestriction(const std::string &zone);
 
-	void receive(const std::string& event);
+	void receive(const std::string &event);
 
-	void unlockZone(const std::string& zone);
-
-	void lockdownZone(const std::string& zone);
-
-	void revokeAccess(const std::string& zone, const std::string& role);
-
-	void broadcastRestriction(const std::string& zone);
-
-	void ~AccessControlTeam();
-
-	void ~AccessControlTeam();
+	~AccessControlTeam();
 };
 
 #endif

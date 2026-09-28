@@ -1,13 +1,15 @@
 #ifndef SECURITYGUARDS_H
 #define SECURITYGUARDS_H
 
-class SecurityGuards : FirstResponder {
+#include <iostream>
+#include <string>
+#include "FirstResponder.h"
 
+class SecurityGuards : public FirstResponder
+{
 
 public:
-	SecurityGuards(CommunicationTeam* hub);
-
-	virtual void receive(const std::string& event) = 0;
+	SecurityGuards(CommunicationTeam *hub);
 
 	void clearBuilding();
 
@@ -15,11 +17,9 @@ public:
 
 	void requestBackup();
 
-	void receive(const std::string& event);
+	void receive(const std::string &event);
 
-	void ~SecurityGuards();
-
-	void ~SecurityGuards();
+	~SecurityGuards();
 };
 
 #endif

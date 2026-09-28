@@ -1,19 +1,18 @@
 #ifndef MODERATE_H
 #define MODERATE_H
 
-class Moderate : IncidentState {
+#include "IncidentState.h"
+#include "IncidentControl.h"
 
+class Moderate : public IncidentState
+{
 
 public:
-	virtual void escalate(IncidentControl* context) = 0;
+	virtual void escalate(IncidentControl *context);
 
-	virtual std::string getLabel() = 0;
+	virtual std::string getLabel();
 
-	void deescalate(IncidentControl* context);
-
-	void ~Moderate();
-
-	void ~Moderate();
+	void deescalate(IncidentControl *context);
 };
 
 #endif

@@ -1,16 +1,13 @@
 #include "FireFighter.h"
 
-void FireFighter::alertStation(const std::string& location, int buildingNumber) {
-	// TODO - implement FireFighter::alertStation
-	throw "Not yet implemented";
+#include <iostream>
+
+int FireFighter::getResponseETA()
+{
+	return 5; //need to change
 }
 
-int FireFighter::getResponseETA() {
-	// TODO - implement FireFighter::getResponseETA
-	throw "Not yet implemented";
-}
-
-void FireFighter::alertStation(const std::string& location, int buildingNumber) {
-	// TODO - implement FireFighter::alertStation
-	throw "Not yet implemented";
+void FireFighter::alertStation(const std::string& location, int buildingNumber)
+{
+	std::cout << "Alerting fire station at " << location << " for building number " << buildingNumber << "\n";
 }

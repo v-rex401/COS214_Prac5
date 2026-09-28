@@ -1,43 +1,46 @@
 #ifndef INCIDENTCONTROL_H
 #define INCIDENTCONTROL_H
 
-class IncidentControl {
+#include <string>
+#include <map>
+
+#include "Threat.h"
+#include "IncidentState.h"
+
+class IncidentMemento;
+
+class IncidentControl
+{
 
 private:
-	IncidentState* currentState;
+	IncidentState *currentState;
 	int threatCount;
 	std::map<std::string, Threat> activeThreats;
 
 public:
 	IncidentControl();
 
-	void ~IncidentControl();
+	~IncidentControl();
 
-	void setState(IncidentState* state);
+	void setState(IncidentState *state);
 
 	void escalate();
 
 	void deescalate();
 
-	void addThreat(const std::string& location, Threat threat);
+	void addThreat(const std::string &location, Threat threat);
 
-	void removeThreat(const std::string& location);
+	void removeThreat(const std::string &location);
 
 	void clearThreats();
 
-	int getThreatCount();
+	int getThreatCount() const;
 
-	const std::string getState();
+	std::string getState() const;
 
-	IncidentMemento* createMemento();
+	IncidentMemento *createMemento();
 
-	void restore(IncidentMemento* memento);
-
-	void ~IncidentControl();
-
-	void addThreat(const std::string& location, Threat threat);
-
-	void removeThreat(const std::string& location);
+	void restore(IncidentMemento *memento);
 };
 
 #endif

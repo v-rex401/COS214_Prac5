@@ -2,3 +2,4 @@
 *.vpp_bak_*
 ~$*
 EOF
+test.cpp

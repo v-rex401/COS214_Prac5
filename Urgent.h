@@ -1,19 +1,20 @@
 #ifndef URGENT_H
 #define URGENT_H
+#include "IncidentState.h"
+#include "IncidentControl.h"
+#include <string>
 
-class Urgent : IncidentState {
-
+class Urgent : public IncidentState
+{
 
 public:
-	virtual void escalate(IncidentControl* context) = 0;
+	void escalate(IncidentControl *context);
 
-	void deescalate(IncidentControl* context);
+	void deescalate(IncidentControl *context);
 
-	virtual std::string getLabel() = 0;
+	std::string getLabel();
 
-	void ~Urgent();
-
-	void ~Urgent();
+	~Urgent();
 };
 
 #endif

@@ -1,19 +1,21 @@
 #ifndef RESOLVED_H
 #define RESOLVED_H
 
-class Resolved : IncidentState {
+#include "IncidentState.h"
+#include "IncidentControl.h"
+#include <string>
 
+class Resolved : public IncidentState
+{
 
 public:
-	virtual void escalate(IncidentControl* context) = 0;
+	void escalate(IncidentControl *context);
 
-	void deescalate(IncidentControl* context);
+	void deescalate(IncidentControl *context);
 
-	virtual std::string getLabel() = 0;
+	std::string getLabel();
 
-	void ~Resolved();
-
-	void ~Resolved();
+	~Resolved();
 };
 
 #endif

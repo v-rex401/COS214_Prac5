@@ -1,6 +1,23 @@
 #include "Emergency.h"
+#include "IncidentControl.h"
+#include "Moderate.h"
+#include "Urgent.h"
+#include <iostream>
 
-void Emergency::deescalate(IncidentControl* context) {
-	// TODO - implement Emergency::deescalate
-	throw "Not yet implemented";
+void Emergency::deescalate(IncidentControl *context)
+{
+	std::cout << "EMERGENCY deescalating to URGENT";
+	context->setState(new Urgent());
 }
+
+void Emergency::escalate(IncidentControl *context)
+{
+	std::cout << "EMERGENCY cannot be escalted any further";
+}
+
+std::string Emergency::getLabel()
+{
+	return "EMERGENCY";
+}
+
+Emergency::~Emergency() {}

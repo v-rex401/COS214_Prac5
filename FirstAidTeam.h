@@ -1,25 +1,24 @@
 #ifndef FIRSTAIDTEAM_H
 #define FIRSTAIDTEAM_H
 
-class FirstAidTeam : FirstResponder {
+#include <string>
+#include "FirstResponder.h"
 
+class FirstAidTeam : public FirstResponder
+{
 
 public:
-	FirstAidTeam(CommunicationTeam* hub);
-
-	virtual void receive(const std::string& event) = 0;
+	FirstAidTeam(CommunicationTeam *hub);
 
 	void treatInjury();
 
-	void assesInjury();
+	void checkInjury();
 
 	void emergencyEscalation();
 
-	void receive(const std::string& event);
+	void receive(const std::string &event);
 
-	void ~FirstAidTeam();
-
-	void ~FirstAidTeam();
+	~FirstAidTeam();
 };
 
 #endif

@@ -1,23 +1,22 @@
 #ifndef FACILITYSTAFF_H
 #define FACILITYSTAFF_H
+#include "FirstResponder.h"
+#include "CommunicationTeam.h"
 
-class FacilityStaff : FirstResponder {
-
+class FacilityStaff : public FirstResponder
+{
 
 public:
-	FacilityStaff(CommunicationTeam* hub);
+	std::string name;
+	FacilityStaff(CommunicationTeam *hub);
 
-	virtual void receive(const std::string& event) = 0;
-
-	void dispatchMaintanance();
+	void dispatchMaintenance();
 
 	void securePremises();
 
-	void receive(const std::string& event);
+	void receive(const std::string &event);
 
-	void ~FacilityStaff();
-
-	void ~FacilityStaff();
+	~FacilityStaff();
 };
 
 #endif

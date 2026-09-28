@@ -1,22 +1,24 @@
 #ifndef POLICEADAPTER_H
 #define POLICEADAPTER_H
 
-class PoliceAdapter : EmergencyResponder {
+#include <string>
 
-public:
+#include "EmergencyResponder.h"
+#include "Police.h"
+
+class PoliceAdapter : public EmergencyResponder {
+
+private:
 	Police* adaptee;
 
+public:
 	PoliceAdapter(Police* p);
 
-	virtual void respond(const std::string& location, Threat threat) = 0;
+	void respond(const std::string& location, Threat threat) override;
 
-	virtual std::string getStatus() = 0;
+	std::string getStatus() const override;
 
-	void ~PoliceAdapter();
-
-	void respond(const std::string& location, Threat threat);
-
-	void ~PoliceAdapter();
+	~PoliceAdapter();
 };
 
 #endif

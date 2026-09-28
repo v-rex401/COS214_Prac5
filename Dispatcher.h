@@ -1,20 +1,26 @@
 #ifndef DISPATCHER_H
 #define DISPATCHER_H
 
-class Dispatcher {
+#include "Protocol.h"
+#include <queue>
+#include <stack>
 
-private:
-	std::queue<Protocol*> commandQueue;
-	std::stack<Protocol*> commandHistory;
+class Dispatcher
+{
+
+protected:
+	std::queue<Protocol *> commandQueue;
+	std::stack<Protocol *> commandHistory;
 
 public:
-	void issueCommand(Protocol* cmd);
+	void issueCommand(Protocol *cmd);
 
 	void undoLast();
 
-	void ~Dispatcher();
+	std::stack<Protocol *> getCommandHistory();
+	std::queue<Protocol *> getCommandQueue();
 
-	void ~Dispatcher();
+	~Dispatcher();
 };
 
 #endif
