@@ -35,7 +35,7 @@ public:
 
 	void reportIncident(const std::string &location, Threat threat);
 
-	void escalateToEmergency();
+	void escalateToEmergency(const std::string& location, Threat threat);
 
 	void resolveIncident();
 

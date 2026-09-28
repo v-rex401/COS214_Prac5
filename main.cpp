@@ -49,7 +49,7 @@ void scenario1()
     std::cout << std::endl;
 
     std::cout << "==== Escalate  ====\n";
-    highschool->escalateToEmergency();
+    highschool->escalateToEmergency("Chemistry Lab", FIRE);
     std::cout << std::endl;
 
     std::cout << "==== Resolve Incident ====\n";
@@ -91,9 +91,9 @@ void scenario2()
     std::cout << std::endl;
 
     std::cout << "==== Escalate ====\n";
-    campus->escalateToEmergency();
+    campus->escalateToEmergency("Library", INJURY);
     std::cout << std::endl;
-    campus->escalateToEmergency();  //should show that it cannot escalate further
+    campus->escalateToEmergency("Library", INJURY);  //should show that it cannot escalate further
     std::cout << std::endl;
 
     std::cout << "==== Rollback ====\n";

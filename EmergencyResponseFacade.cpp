@@ -14,7 +14,6 @@
 #include "PoliceAdapter.h"
 #include "AmbulanceAdapter.h"
 #include "Isolate.h"
-#include "EmergencyEscalation.h"
 #include "Resolve.h"
 
 #include <iostream>
@@ -74,7 +73,7 @@ void EmergencyResponseFacade::reportIncident(const std::string &location, Threat
 	dispatcher->issueCommand(new Isolate(access, location));
 }
 
-void EmergencyResponseFacade::escalateToEmergency()
+void EmergencyResponseFacade::escalateToEmergency(const std::string& location, Threat threat)
 {
 	std::cout << "Escalating incident to emergency level\n";
 
@@ -85,7 +84,14 @@ void EmergencyResponseFacade::escalateToEmergency()
 	history->push(controller->createMemento());
 
 	// issue emergency escalation command to responders
-	dispatcher->issueCommand(new EmergencyEscalation(guards, facility, access, medics, police, fire, ambulance));
+	guards->clearBuilding();
+    facility->securePremises();
+    access->grantEmergencyAccess();
+    medics->emergencyEscalation();
+
+	police->respond(location, threat);
+    fire->respond(location, threat);
+    ambulance->respond(location, threat);
 
 	// notify responders of escalation
 	/* hub->notify(nullptr, "EMERGENCY_ESCALATED"); */
