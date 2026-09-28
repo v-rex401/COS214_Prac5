@@ -1,14 +1,19 @@
 #include "IncidentMemento.h"
 
-int IncidentMemento::getThreatCount() {
+IncidentMemento::IncidentMemento(int threatCount, const std::map<std::string, Threat>& activeThreats, const std::string& stateLabel)
+	: threatCount(threatCount), activeThreats(activeThreats), stateLabel(stateLabel) {}
+
+int IncidentMemento::getThreatCount() const
+{
 	return this->threatCount;
 }
 
-std::map IncidentMemento::getActiveThreats() {
-	// TODO - implement IncidentMemento::getActiveThreats
-	throw "Not yet implemented";
+std::map<std::string, Threat> IncidentMemento::getActiveThreats() const
+{
+	return this->activeThreats;
 }
 
-std::string IncidentMemento::getStateLabel() {
+std::string IncidentMemento::getStateLabel() const
+{
 	return this->stateLabel;
 }

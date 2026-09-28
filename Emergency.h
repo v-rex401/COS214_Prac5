@@ -1,19 +1,17 @@
 #ifndef EMERGENCY_H
 #define EMERGENCY_H
 
-class Emergency : IncidentState {
-
+class Emergency : public IncidentState
+{
 
 public:
-	virtual void escalate(IncidentControl* context) = 0;
+	virtual void escalate(IncidentControl *context);
 
-	void deescalate(IncidentControl* context);
+	void deescalate(IncidentControl *context);
 
-	virtual std::string getLabel() = 0;
+	virtual std::string getLabel();
 
-	void ~Emergency();
-
-	void ~Emergency();
+	~Emergency();
 };
 
 #endif
