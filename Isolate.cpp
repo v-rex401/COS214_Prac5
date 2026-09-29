@@ -11,6 +11,11 @@ void Isolate::execute()
 	access->lockdownZone(zone);
 }
 
+std::string getName()
+{
+	return "ISOLATE";
+}
+
 void Isolate::undo()
 {
 	access->unlockZone(zone);

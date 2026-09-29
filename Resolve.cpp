@@ -11,6 +11,11 @@ void Resolve::undo()
 	access->lockdownZone("ALL");
 }
 
+std::string getName()
+{
+	return "RESOLVE";
+}
+
 Resolve::Resolve(FacilityStaff *f, AccessControlTeam *a)
 {
 	facility = f;

@@ -14,6 +14,12 @@ void Deescalate::undo()
 {
 	guards->requestBackup();
 }
+
+std::string getName()
+{
+	return "DEESCALATE";
+}
+
 Deescalate::~Deescalate()
 {
 }

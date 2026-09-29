@@ -20,6 +20,11 @@ void Evacuate::undo()
 	guards->issueWarning();
 }
 
+std::string getName()
+{
+	return "EVECUATE";
+}
+
 Evacuate::~Evacuate()
 {
 }
