@@ -5,7 +5,7 @@ TARGET = main
 OBJS = main.o \
 AccessControlTeam.o Ambulance.o AmbulanceAdapter.o Assist.o \
 CommunicationHub.o Deescalate.o Dispatcher.o Emergency.o \
-EmergencyEscalation.o Evacuate.o FacilityStaff.o FireFighter.o \
+Evacuate.o FacilityStaff.o FireFighter.o \
 FireFighterAdapter.o FirstAidTeam.o FirstResponder.o GrantAccess.o \
 IncidentControl.o IncidentHistory.o IncidentMemento.o Isolate.o \
 Moderate.o Police.o PoliceAdapter.o Resolve.o Resolved.o \
@@ -43,9 +43,6 @@ Dispatcher.o: Dispatcher.cpp
 
 Emergency.o: Emergency.cpp
 	g++ -std=c++11 -g -c Emergency.cpp
-
-EmergencyEscalation.o: EmergencyEscalation.cpp
-	g++ -std=c++11 -g -c EmergencyEscalation.cpp
 
 Evacuate.o: Evacuate.cpp
 	g++ -std=c++11 -g -c Evacuate.cpp
