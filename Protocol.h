@@ -9,6 +9,8 @@ public:
 
 	virtual void undo() = 0;
 
+	virtual std::string getName() = 0;
+
 	virtual ~Protocol() {};
 };
 

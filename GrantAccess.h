@@ -18,6 +18,8 @@ public:
 
 	GrantAccess(AccessControlTeam *a, std::string zone, std::string role);
 
+	std::string getName();
+
 	~GrantAccess();
 };
 

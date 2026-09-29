@@ -21,6 +21,8 @@ public:
 
 	void undo();
 
+	std::string getName();
+
 	~Evacuate();
 };
 

@@ -19,6 +19,8 @@ public:
 
 	Resolve(FacilityStaff *f, AccessControlTeam *a);
 
+	std::string getName();
+
 	~Resolve();
 };
 
