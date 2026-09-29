@@ -7,7 +7,6 @@ class FacilityStaff : public FirstResponder
 {
 
 public:
-	std::string name;
 	FacilityStaff(CommunicationTeam *hub);
 
 	void dispatchMaintenance();

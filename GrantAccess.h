@@ -12,11 +12,10 @@ private:
 	std::string role;
 
 public:
+	GrantAccess(AccessControlTeam *a, std::string zone, std::string role);
 	void execute();
 
 	void undo();
-
-	GrantAccess(AccessControlTeam *a, std::string zone, std::string role);
 
 	std::string getName();
 
