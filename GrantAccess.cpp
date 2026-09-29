@@ -19,7 +19,7 @@ void GrantAccess::undo()
 	access->lockdownZone(zone);
 }
 
-std::string getName()
+std::string GrantAccess::getName()
 {
 	return "GRANT ACCESS";
 }

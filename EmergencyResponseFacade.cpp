@@ -73,7 +73,7 @@ void EmergencyResponseFacade::reportIncident(const std::string &location, Threat
 	dispatcher->issueCommand(new Isolate(access, location));
 }
 
-void EmergencyResponseFacade::escalateToEmergency(const std::string& location, Threat threat)
+void EmergencyResponseFacade::escalateToEmergency(const std::string &location, Threat threat)
 {
 	std::cout << "Escalating incident to emergency level\n";
 
@@ -85,13 +85,13 @@ void EmergencyResponseFacade::escalateToEmergency(const std::string& location, T
 
 	// issue emergency escalation command to responders
 	guards->clearBuilding();
-    facility->securePremises();
-    access->grantEmergencyAccess();
-    medics->emergencyEscalation();
+	facility->securePremises();
+	access->grantEmergencyAccess();
+	medics->emergencyEscalation();
 
 	police->respond(location, threat);
-    fire->respond(location, threat);
-    ambulance->respond(location, threat);
+	fire->respond(location, threat);
+	ambulance->respond(location, threat);
 
 	// notify responders of escalation
 	/* hub->notify(nullptr, "EMERGENCY_ESCALATED"); */
@@ -147,7 +147,7 @@ void EmergencyResponseFacade::printHistory()
 	std::stack<Protocol *> printStack = dispatcher->getCommandHistory();
 	while (!printStack.empty())
 	{
-		std::cout << printStack.top() << std::endl;
+		std::cout << printStack.top()->getName() << std::endl;
 		printStack.pop();
 	}
 }

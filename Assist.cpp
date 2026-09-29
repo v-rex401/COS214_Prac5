@@ -17,7 +17,7 @@ void Assist::undo()
 	std::cout << "[ASSIST] Assistance protocol rolled back.\n";
 }
 
-std::string getName()
+std::string Assist::getName()
 {
 	return "ASSIST";
 }

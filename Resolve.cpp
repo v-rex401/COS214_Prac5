@@ -11,7 +11,7 @@ void Resolve::undo()
 	access->lockdownZone("ALL");
 }
 
-std::string getName()
+std::string Resolve::getName()
 {
 	return "RESOLVE";
 }
