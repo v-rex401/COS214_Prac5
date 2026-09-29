@@ -1,4 +1,4 @@
-TARGET = main
+TARGET = campusguard
 
 # ResponderComponent, Iterator and UnitState have no matching .cpp -
 # they're abstract/header-only, so there's no .o to build for them.
