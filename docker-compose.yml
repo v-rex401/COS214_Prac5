@@ -1,0 +1,8 @@
+services:
+  dev:
+    build: .
+    image: campusguard
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/campusguard
